@@ -29,6 +29,7 @@ jobs:
           version: "2024"
           packages: >-
             scheme-basic
+            latexmk
 
       - name: Lint
         working-directory: latex_build_action
