@@ -42,7 +42,8 @@ def run_build(
         result = subprocess.run(
             [
                 "python3",
-                "build.py",
+                "-m",
+                "latex_build_action",
                 "-d",
                 str(workdir.absolute()),
                 "-c",

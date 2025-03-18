@@ -200,6 +200,11 @@ class FakeFileSystemTestCase(FileTestCaseMixin, fake_filesystem_unittest.TestCas
 class RealFileSystemTestCase(FileTestCaseMixin, unittest.TestCase):
     # pylint: disable=missing-class-docstring
 
+    """
+    Constant that determines whether the test directory should be removed after each test case.
+    """
+    DEBUG = False
+
     def subdir(self, *subdir: str) -> Path:
         """
         Helper function that registers a subdirectory within the
@@ -220,7 +225,8 @@ class RealFileSystemTestCase(FileTestCaseMixin, unittest.TestCase):
         self.testdir.mkdir()
 
     def tearDown(self) -> None:
-        shutil.rmtree(self.testdir)
+        if not self.DEBUG:
+            shutil.rmtree(self.testdir)
         super().tearDown()
 
     def generate_tex_files(
