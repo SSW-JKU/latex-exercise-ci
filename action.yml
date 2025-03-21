@@ -36,6 +36,7 @@ runs:
       with:
         cache: "pip" # caching pip dependencies
         python-version: ${{ inputs.python_version }}
+        cache-dependency-path: '${{ github.action_path }}/requirements-dev.txt'
 
     - name: Install Python dependencies
       working-directory: ${{ github.action_path }}
@@ -48,7 +49,6 @@ runs:
     # install TeX live + install required dependencies
     - name: Setup TeX Live
       uses: teatimeguest/setup-texlive-action@v3
-      working-directory: ${{ github.action_path }}
       with:
         version: ${{ inputs.texlive_version }}
         # Any additionally required TeX packages should be placed here.
@@ -68,7 +68,6 @@ runs:
 
     # commit & push all changes (i.e. all generated PDFs, build logs)
     - uses: stefanzweifel/git-auto-commit-action@v4
-      working-directory: ${{ github.action_path }}
       if: always()
       with:
         commit_message: Build TEX files
