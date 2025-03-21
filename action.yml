@@ -1,29 +1,29 @@
-name: 'Latex Build Action'
-description: 'Builds contents and homeworks of the SSW lectures and exercises'
+name: "Latex Build Action"
+description: "Builds contents and homeworks of the SSW lectures and exercises"
 inputs:
   python_version:
-    description: 'Python version to use'
+    description: "Python version to use"
     required: false
-    default: '3.13'
+    default: "3.13"
   texlive_version:
-    description: 'TeX Live version to use'
+    description: "TeX Live version to use"
     required: false
-    default: '2024'
+    default: "2024"
   texlive_packages:
-    description: 'TeX Live packages to install'
+    description: "TeX Live packages to install"
     required: false
     default: >-
       scheme-basic
   config_file_name:
-    description: 'Name of the configuration file'
+    description: "Name of the configuration file"
     required: false
     default: .lecture-build-ci.json
   commit_user_name:
-    description: 'Name of the user who commits the changes'
+    description: "Name of the user who commits the changes"
     required: false
     default: SSW SW1 Build[bot]
   commit_user_email:
-    description: 'Email of the user who commits the changes'
+    description: "Email of the user who commits the changes"
     required: false
     default: ssw-sw1-build-bot@users.noreply.github.com
 runs:
@@ -62,7 +62,7 @@ runs:
     # build all exercise and lecture files according to the script
     - name: Build exercises
       id: build-exercise-files
-      run: cd $GITHUB_ACTION_PATH && python -m latex_build_action --config "${CONFIG_FILE}" --workdir .
+      run: ${{ github.action_path }}/run_action.sh
       shell: bash
       env:
         CONFIG_FILE: ${{ inputs.config_file_name }}
