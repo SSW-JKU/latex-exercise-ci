@@ -62,8 +62,7 @@ runs:
     # build all exercise and lecture files according to the script
     - name: Build exercises
       id: build-exercise-files
-      run: cd $GITHUB_ACTION_PATH && python -m latex_build_action --config "${GITHUB_ACTION_PATH}/${CONFIG_FILE}" --workdir .
-      working-directory: ${{ github.action_path }}
+      run: cd $GITHUB_ACTION_PATH && python -m latex_build_action --config "${CONFIG_FILE}" --workdir .
       shell: bash
       env:
         CONFIG_FILE: ${{ inputs.config_file_name }}
