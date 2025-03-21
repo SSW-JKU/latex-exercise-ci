@@ -29,13 +29,17 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # Create symbolic link for requirements.txt (https://github.com/actions/setup-python/issues/361#issuecomment-2530429607)
+    # to work around https://github.com/actions/setup-python/issues/361
+    - name: Create symbolic link for requirements.txt
+      run: ln -s ${{ github.action_path }}/requirements.txt
+      shell: bash
     # install Python
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         cache: "pip" # caching pip dependencies
         python-version: ${{ inputs.python_version }}
-        cache-dependency-path: '${{ github.action_path }}/requirements.txt'
 
     - name: Install Python dependencies
       working-directory: ${{ github.action_path }}
