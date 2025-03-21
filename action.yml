@@ -32,7 +32,6 @@ runs:
     # install Python
     - name: Setup Python
       uses: actions/setup-python@v4
-      working-directory: ${{ github.action_path }}
       with:
         cache: "pip" # caching pip dependencies
         python-version: ${{ inputs.python_version }}
