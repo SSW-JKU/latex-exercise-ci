@@ -1,5 +1,7 @@
 # SSW LaTeX Exercise CI
 
+[![LaTeX Build Action Tests](https://github.com/SSW-JKU/latex-exercise-ci/actions/workflows/test.yml/badge.svg)](https://github.com/SSW-JKU/latex-exercise-ci/actions/workflows/test.yml)
+
 This action, used at the [SSW](https://ssw.jku.at/) at the [JKU](https://www.jku.at/), is configured to automatically build exercise files upon commit and (to prevent unnecessary rebuilds) cache the results.
 We group exercise files into two categories: *lesson* and *exercise* (homework) materials.
 Hence, the action expects these materials to adhere to this folder structure:
