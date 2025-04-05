@@ -21,11 +21,11 @@ inputs:
   commit_user_name:
     description: "Name of the user who commits the changes"
     required: false
-    default: SSW SW1 Build[bot]
+    default: LaTeX Exercise CI Build[bot]
   commit_user_email:
     description: "Email of the user who commits the changes"
     required: false
-    default: ssw-sw1-build-bot@users.noreply.github.com
+    default: latex-exercise-ci-bot@users.noreply.github.com
 runs:
   using: "composite"
   steps:
