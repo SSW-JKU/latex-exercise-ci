@@ -185,4 +185,4 @@ def build_exercise(
         return (True, result)
 
     log.warning("%s: Exercise directory does not exist", exercise)
-    return (False, 1)
+    return (False, 0)

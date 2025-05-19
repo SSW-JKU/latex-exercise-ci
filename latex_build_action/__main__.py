@@ -68,8 +68,18 @@ def _set_action_output(
     """
     github_output = os.getenv("GITHUB_OUTPUT")
     if github_output:
-        with open(github_output, "a", encoding="UTF-8") as f:
-            print(f"changed-exercises={','.join(changed_exercises)}", file=f)
+        exercise_str = ",".join(changed_exercises)
+        log.info(
+            "Writing changed exercises (%s) to GitHub output file %s",
+            exercise_str,
+            github_output,
+        )
+        try:
+            with open(github_output, "a", encoding="UTF-8") as f:
+                f.write(f"changed-exercises={exercise_str}\n")
+        except OSError as e:
+            log.error("Failed to write to %s: %s", github_output, e)
+            return 1
 
     return result_code
 
