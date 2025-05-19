@@ -4,6 +4,7 @@ This module contains the main build logic for the LaTeX build action.
 
 from subprocess import CompletedProcess
 import logging as log
+from typing import Tuple
 from .config import (
     EXERCISE_DIR_NAME,
     LESSON_DIR_NAME,
@@ -144,7 +145,9 @@ def compile_targets(
     return rehash, result
 
 
-def build_exercise(exercise: str, config: Config, targets: Targets) -> ResultCode:
+def build_exercise(
+    exercise: str, config: Config, targets: Targets
+) -> Tuple[bool, ResultCode]:
     """
     Builds all specified targets for the given exercise.
 
@@ -178,8 +181,8 @@ def build_exercise(exercise: str, config: Config, targets: Targets) -> ResultCod
         # if the hashes matched, we consider it an auto-success
         if result is None:
             log.info("%s: No changes detected", exercise)
-            return 0
-        return result
+            return (False, 0)
+        return (True, result)
 
     log.warning("%s: Exercise directory does not exist", exercise)
-    return 0
+    return (False, 1)

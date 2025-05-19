@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,latex
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,latex
 
+# Test directories
+testdir/
+
 ### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
 *.aux
