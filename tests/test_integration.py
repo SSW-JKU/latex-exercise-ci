@@ -97,7 +97,27 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
         self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03_solution")
         self.assertWasCompiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
 
+        self.assertIsFile("25WS", "UE01", ".checksum")
+        self.assertIsFile("25WS", "UE02", ".checksum")
         self.assertIsFile("25WS", "UE03", ".checksum")
+
+    def test_exercise_directory_does_not_exist_success(self) -> None:
+        # pylint: disable=missing-function-docstring
+
+        # create exercise folders
+        self.generate_tex_files(
+            Path("UE01", "Aufgabe", "main.tex"),
+            Path("UE01", "Unterricht", "Lernziele.tex"),
+            valid=True,
+        )
+
+        run_build(self.testdir, "UE01", "UE02").check_returncode()
+
+        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01")
+        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01_solution")
+        self.assertWasCompiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+
+        self.assertIsFile("25WS", "UE01", ".checksum")
 
     def test_repeated_compilation_success(self) -> None:
         # pylint: disable=missing-function-docstring
