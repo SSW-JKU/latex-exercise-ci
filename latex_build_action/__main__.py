@@ -12,6 +12,7 @@ requirements.
 """
 
 import logging as log
+import os
 import sys
 
 from .build import ResultCode, build_exercise, create_compilation_targets
@@ -33,8 +34,13 @@ def main(config: Config) -> int:
     # (e.g. for all exercises, we build the exercise, the solution and the LZD)
     targets = create_compilation_targets(config)
 
+    changed_exercises = list[str]()
+
     for exercise in config.exercises:
-        last_result_code = build_exercise(exercise, config, targets)
+        changed, last_result_code = build_exercise(exercise, config, targets)
+
+        if changed:
+            changed_exercises.append(exercise)
 
         result_code |= last_result_code
 
@@ -42,7 +48,28 @@ def main(config: Config) -> int:
         if last_result_code != 0:
             assert result_code != 0
             if config.options.abort_all_on_error:
-                return result_code
+                return _set_action_output(changed_exercises, result_code)
+
+    return _set_action_output(changed_exercises, result_code)
+
+
+def _set_action_output(
+    changed_exercises: list[str], result_code: ResultCode
+) -> ResultCode:
+    """
+    Sets the output of the GitHub Action to the changed exercises.
+
+    Args:
+        changed_exercises (list[str]) : The list of changed exercises.
+        result_code (int) : The result code of the compilation.
+
+    Returns:
+        (int) The result code of the compilation.
+    """
+    github_output = os.getenv("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a", encoding="UTF-8") as f:
+            print(f"changed-exercises={','.join(changed_exercises)}", file=f)
 
     return result_code
 

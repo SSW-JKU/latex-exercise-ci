@@ -26,6 +26,10 @@ inputs:
     description: "Email of the user who commits the changes"
     required: false
     default: latex-exercise-ci-bot@users.noreply.github.com
+outputs:
+  changed-exercises:
+    description: "A comma-separated list of exercises that have been changed"
+    value: ${{ steps.build-exercise-files.outputs.changed-exercises }}
 runs:
   using: "composite"
   steps:
@@ -38,7 +42,7 @@ runs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        cache: "pip" # caching pip dependencies
+        cache: "pip"
         python-version: ${{ inputs.python_version }}
 
     - name: Install Python dependencies
@@ -54,9 +58,6 @@ runs:
       uses: teatimeguest/setup-texlive-action@v3
       with:
         version: ${{ inputs.texlive_version }}
-        # Any additionally required TeX packages should be placed here.
-        # scheme-small could be used to provide more packages by default albeit with a larger download
-        # tikz is part of pgf
         packages: ${{ inputs.texlive_packages }}
 
     # build all exercise and lecture files according to the script
