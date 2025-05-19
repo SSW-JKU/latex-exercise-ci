@@ -69,8 +69,8 @@ jobs:
         run: |
           TAG_NAME="${GITHUB_REF##*/}"
           echo "TAG=$TAG_NAME" >> $GITHUB_ENV
-          NOTES=$(awk "/^## $TAG_NAME/{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md)
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          NOTES=$(awk "/^## \[$TAG_NAME\]/{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md)
+          echo "RELEASE_NOTES=<<EOF" >> $GITHUB_ENV
           echo "$NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
