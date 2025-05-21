@@ -51,7 +51,7 @@ The action is customizable via the following inputs:
 
   Specifies the configuration file path, a JSON file that defines:
 
-  ```json
+  ```jsonc
   {
     /*
      * current semester folder (cf. <semester>) - only files within this
@@ -72,7 +72,7 @@ The action is customizable via the following inputs:
     "exercises": [
       "<str>", // exercise 1 folder name
       "<str>", // exercise 2 folder name
-      ...
+      // ...
     ]
   }
   ```
