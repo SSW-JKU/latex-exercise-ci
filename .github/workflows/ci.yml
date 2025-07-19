@@ -45,9 +45,9 @@ jobs:
           pip install --upgrade setuptools
           pip install -r requirements.txt
       - name: Setup TeX Live
-        uses: teatimeguest/setup-texlive-action@v3
+        uses: zauguin/install-texlive@v4
         with:
-          version: ${{ matrix.texlive-version }}
+          texlive_version: ${{ matrix.texlive-version }}
           packages: >-
             scheme-basic
             latexmk
