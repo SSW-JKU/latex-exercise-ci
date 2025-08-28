@@ -63,7 +63,7 @@ runs:
     # build all exercise and lecture files according to the script
     - name: Build exercises
       id: build-exercise-files
-      run: ${{ github.action_path }}/run_action.sh
+      run: ${{ github.action_path }}/entrypoint.sh
       shell: bash
       env:
         CONFIG_FILE: ${{ inputs.config_file_name }}
