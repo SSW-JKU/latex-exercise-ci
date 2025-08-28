@@ -26,6 +26,10 @@ inputs:
     description: "Email of the user who commits the changes"
     required: false
     default: latex-exercise-ci-bot@users.noreply.github.com
+  working-directory:
+    description: "The working directory to use"
+    required: false
+    default: ${{ github.workspace }}
 outputs:
   changed-exercises:
     description: "A comma-separated list of exercises that have been changed"
@@ -68,6 +72,7 @@ runs:
       env:
         CONFIG_FILE: ${{ inputs.config_file_name }}
         GITHUB_ACTION_PATH: ${{ github.action_path }}
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
 
     # commit & push all changes (i.e. all generated PDFs, build logs)
     - uses: stefanzweifel/git-auto-commit-action@v4
