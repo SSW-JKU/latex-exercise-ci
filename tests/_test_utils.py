@@ -8,24 +8,15 @@ import shutil
 import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Iterable, Protocol, Type, cast
+from typing import Any, Iterable, Optional, Protocol, cast
 from pyfakefs import fake_filesystem_unittest
 from latex_build_action.config import Config
 
-
-DEFAULT_CONFIG = {
+DEFAULT_CONFIG: dict[str, str | dict[str, str] | list[str]] = {
     "activeSemester": "25WS",
     "exercises": ["UE01", "UE02", "UE03"],
     "entryPoints": {"exercise": "ExerciseEntryPoint", "lesson": "LessonEntryPoint"},
 }
-
-
-def dont_call[R](*_: Any) -> R:  # type: ignore[type-var]
-    """
-    Helper function that can be used for callbacks that
-    should never be called.
-    """
-    raise AssertionError("should not be called")
 
 
 def create_temp_json(**config: Any) -> Path:
@@ -124,11 +115,15 @@ class HasAssertions(Protocol):
 
     # pylint: disable=invalid-name
     # pylint: disable=missing-function-docstring
-    def assertEqual(self, a: Any, b: Any) -> None: ...
+    def assertEqual(
+        self, first: Any, second: Any, msg: Optional[str] = None
+    ) -> None: ...
 
     # pylint: disable=invalid-name
     # pylint: disable=missing-function-docstring
-    def assertIsInstance(self, a: Any, expected_type: Type[Any]) -> None: ...
+    def assertIsInstance(
+        self, obj: Any, cls: Any, msg: Optional[str] = None
+    ) -> None: ...
 
 
 class FileTestCaseMixin:

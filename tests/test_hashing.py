@@ -1,6 +1,6 @@
 # pylint: disable=missing-module-docstring
 
-from typing import Tuple
+from typing import Optional, Tuple
 import unittest
 
 from pathlib import Path
@@ -11,7 +11,14 @@ from latex_build_action.hashing import (
     check_dirhash,
     check_and_update_hash,
 )
-from ._test_utils import FakeFileSystemTestCase, dont_call
+from ._test_utils import FakeFileSystemTestCase
+
+
+def _should_not_be_called[R](_: Optional[R] = None) -> tuple[bool, R]:
+    """
+    Asserts that this callback is never actually invoked.
+    """
+    raise AssertionError("should not be called")
 
 
 class TestHashing(FakeFileSystemTestCase):
@@ -116,7 +123,7 @@ class TestHashing(FakeFileSystemTestCase):
         self.file(Path("testdir", ".checksum"), old_hash)
         self.file(Path("testdir", "lol"), "lol")
 
-        proof = []
+        proof: list[str] = []
 
         def must_be_called() -> Tuple[bool, str]:
             proof.append("success")
@@ -139,7 +146,7 @@ class TestHashing(FakeFileSystemTestCase):
 
         self.file(Path("testdir", "lol"), "lol")
 
-        proof = []
+        proof: list[str] = []
 
         def must_be_called() -> Tuple[bool, str]:
             proof.append("success")
@@ -157,7 +164,7 @@ class TestHashing(FakeFileSystemTestCase):
         # pylint: disable=missing-function-docstring
         self.file(Path("testdir", ".checksum"), hash_directory(Path("testdir")))
 
-        result = check_and_update_hash(Path("testdir"), dont_call)
+        result = check_and_update_hash(Path("testdir"), _should_not_be_called)
 
         self.assertIsNone(result)
 
@@ -165,7 +172,7 @@ class TestHashing(FakeFileSystemTestCase):
         # pylint: disable=missing-function-docstring
         self.file(Path("testdir", ".checksum"), hash_directory(Path("testdir")))
 
-        result = check_and_update_hash(Path("testdir"), dont_call)
+        result = check_and_update_hash(Path("testdir"), _should_not_be_called)
 
         self.assertIsNone(result)
 

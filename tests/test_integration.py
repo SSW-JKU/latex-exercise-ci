@@ -8,7 +8,7 @@ import subprocess
 import unittest
 from ._test_utils import RealFileSystemTestCase, create_temp_json
 
-INTEGRATION_TEST_CONFIG_BASE = {
+INTEGRATION_TEST_CONFIG_BASE: dict[str, str | list[str] | dict[str, str]] = {
     "activeSemester": "25WS",
     "exercises": [],
     "entryPoints": {"exercise": "main.tex", "lesson": "Lernziele.tex"},

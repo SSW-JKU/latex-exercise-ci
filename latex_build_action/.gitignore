@@ -1,7 +1,0 @@
-# Python virtual env and cache files
-__pycache__/
-.env/
-.mypy_cache/
-
-# Test directories
-testdir/
