@@ -1,0 +1,19 @@
+\documentclass[titlepage=false, headlines=2, headsepline, parskip=half, DIV=12]{scrartcl}
+
+\usepackage{scrlayer-scrpage}
+
+\usepackage{csquotes}
+
+\usepackage{listings, xcolor, soul}
+
+\makeatletter
+\DeclareNewSectionCommand[
+  style=section,
+  level=\sectionnumdepth,
+  tocstyle=gobble,% there will be no ToC entry
+  beforeskip=\scr@section@beforeskip,
+  afterskip=\scr@section@afterskip,
+  font=\usekomafont{section},
+]{solutionSection}
+\makeatother
+

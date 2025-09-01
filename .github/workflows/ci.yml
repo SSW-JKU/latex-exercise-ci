@@ -2,6 +2,40 @@ name: Build CI
 
 on: push
 
+env:
+  INTEGRATION_TEST_COMMIT_NAME: Integration Test Build[bot]
+  INTEGRATION_TEST_COMMIT_EMAIL: integration-test-bot@users.noreply.github.com
+  INTEGRATION_TEST_PACKAGES: >-
+    scheme-basic
+    cleveref
+    hyperref
+    latexmk
+    eurosym
+    xsim
+    babel-german
+    hyphen-german
+    csquotes
+    csquotes-de
+    wrapfig
+    tcolorbox
+    paracol
+    mdframed
+    koma-script
+    pgf
+    environ
+    booktabs
+    enumitem
+    listings
+    soul
+    caption
+    fontawesome5
+    zref
+    needspace
+    tikzfill
+    pdfcol
+    listingsutf8
+    xstring
+
 jobs:
   lint:
     name: "Lint+typecheck"
@@ -54,9 +88,90 @@ jobs:
       - name: Run unittests
         run: make test
 
+  integration-test:
+    name: "Integration Test"
+    runs-on: ubuntu-latest
+    needs: ["unit-test"]
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+        texlive-version: ["2024", "2025"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          cache: "pip" # caching pip dependencies
+          python-version: ${{ matrix.python-version }}
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade setuptools
+          pip install -r requirements.txt
+
+      # Integration test 1
+
+      - name: Prepare repositories and test files
+        run: python -m action_tests
+
+      - name: "Integration test 1 (old build system): Test successful build without existing checksum"
+        uses: ./
+        with:
+          config_file_name: "config.json"
+          working_directory: "/test-locals/old_build_working_no_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 1
+        run: python -m action_tests --check old_build_working_no_checksum
+
+      # Integration test 2
+
+      - name: "Old build system: Test no build with same checksum and existing PDFs"
+        uses: ./
+        with:
+          config_file_name: "config.json"
+          working_directory: "/test-locals/old_build_working_same_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 2
+        run: python -m action_tests --check old_build_working_same_checksum
+
+      # Integration test 3
+
+      - name: "Old build system: Test no build with same checksum but no existing PDF"
+        uses: ./
+        with:
+          config_file_name: "config.json"
+          working_directory: "/test-locals/old_build_working_same_checksum_no_pdf/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 2
+        run: python -m action_tests --check old_build_working_same_checksum_no_pdf
+
+      # Integration test 4
+
+      - name: "Old build system: Test no build with wrong checksum"
+        uses: ./
+        with:
+          config_file_name: "config.json"
+          working_directory: "/test-locals/old_build_working_wrong_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 2
+        run: python -m action_tests --check old_build_working_wrong_checksum
+
+      # TODO: add more tests
+
   deploy:
     name: "Create release"
-    needs: ["unit-test"]
+    needs: ["unit-test", "integration-test"]
     if: "${{ startsWith(github.ref, 'refs/tags/') }}"
     runs-on: ubuntu-latest
     steps:
