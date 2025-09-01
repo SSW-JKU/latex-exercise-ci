@@ -1,5 +1,6 @@
 name: "Latex Build Action"
 description: "Builds contents and homeworks of the SSW lectures and exercises"
+
 inputs:
   python_version:
     description: "Python version to use"
@@ -56,6 +57,10 @@ runs:
         python -m pip install --upgrade pip
         pip install --upgrade setuptools
         pip install -r action_requirements.txt
+
+    - name: Delete requirements file symlink
+      shell: bash
+      run: rm action_requirements.txt
 
     # install TeX live + install required dependencies
     - name: Setup TeX Live
