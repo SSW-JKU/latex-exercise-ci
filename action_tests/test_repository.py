@@ -10,8 +10,8 @@ from random import choice
 import subprocess
 from typing import Optional
 
-REMOTE_PATH = Path("/test-remotes")
-LOCAL_PATH = Path("/test-locals")
+REMOTE_PATH = Path("/tmp/test-remotes")
+LOCAL_PATH = Path("/tmp/test-locals")
 DEFAULT_BRANCH = "master"
 DEFAULT_USER = "Test User"
 DEFAULT_EMAIL = "test@user.com"

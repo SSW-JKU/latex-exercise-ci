@@ -2,7 +2,7 @@ import subprocess
 import shutil
 import argparse
 
-from .setup_repository import TestRepository, git, REMOTE_PATH, LOCAL_PATH
+from .test_repository import TestRepository, git, REMOTE_PATH, LOCAL_PATH
 from .scenarios import get_scenario, scenarios
 
 

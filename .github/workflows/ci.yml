@@ -117,7 +117,7 @@ jobs:
         uses: ./
         with:
           config_file_name: "config.json"
-          working_directory: "/test-locals/old_build_working_no_checksum/"
+          working_directory: "/tmp/test-locals/old_build_working_no_checksum/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
@@ -131,7 +131,7 @@ jobs:
         uses: ./
         with:
           config_file_name: "config.json"
-          working_directory: "/test-locals/old_build_working_same_checksum/"
+          working_directory: "/tmp/test-locals/old_build_working_same_checksum/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
@@ -145,7 +145,7 @@ jobs:
         uses: ./
         with:
           config_file_name: "config.json"
-          working_directory: "/test-locals/old_build_working_same_checksum_no_pdf/"
+          working_directory: "/tmp/test-locals/old_build_working_same_checksum_no_pdf/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
@@ -159,7 +159,7 @@ jobs:
         uses: ./
         with:
           config_file_name: "config.json"
-          working_directory: "/test-locals/old_build_working_wrong_checksum/"
+          working_directory: "/tmp/test-locals/old_build_working_wrong_checksum/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
