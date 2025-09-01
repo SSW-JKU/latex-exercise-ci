@@ -40,7 +40,7 @@ runs:
     # Create symbolic link for requirements.txt (https://github.com/actions/setup-python/issues/361#issuecomment-2530429607)
     # to work around https://github.com/actions/setup-python/issues/361
     - name: Create symbolic link for requirements.txt
-      run: ln -s ${{ github.action_path }}/requirements.txt
+      run: ln -s ${{ github.action_path }}/requirements.txt action_requirements.txt
       shell: bash
     # install Python
     - name: Setup Python
@@ -55,7 +55,7 @@ runs:
       run: |
         python -m pip install --upgrade pip
         pip install --upgrade setuptools
-        pip install -r requirements.txt
+        pip install -r action_requirements.txt
 
     # install TeX live + install required dependencies
     - name: Setup TeX Live
