@@ -26,7 +26,7 @@ def scenarios() -> Iterable[tuple[str, "Scenario"]]:
 class Scenario(ABC):
     def __init__(self, name: str, path: list[str]) -> None:
         self.name = name
-        self.path = Path(".") / "_files" / Path(*path)
+        self.path = Path(".") / "action_tests" / "_files" / Path(*path)
 
     @abstractmethod
     def verify(self) -> None: ...

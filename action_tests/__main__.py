@@ -25,8 +25,6 @@ def _prepare() -> None:
         print("---- Local path:", repo.local_path)
         repo.initialize_repo()
 
-        print("Current path:", Path(".").absolute())
-
         shutil.copytree(s.path, repo.local_path, dirs_exist_ok=False)
 
         repo.commit_all("Initial commit")
