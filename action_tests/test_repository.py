@@ -52,15 +52,32 @@ def git(
 
 
 def _set_git_config(repo_dir: Path) -> None:
+    """
+    Sets git author and email configuration for the given repository.
+
+    Args:
+        repo_dir (Path) : The path to the directory.
+    """
     git("config", "user.name", DEFAULT_USER, cwd=repo_dir)
     git("config", "user.email", DEFAULT_EMAIL, cwd=repo_dir)
 
 
-def _setup_repository_path(base_path: Path, repo_id: str, exist_ok: bool) -> Path:
-    repo_path = base_path / repo_id
+def _setup_repository_path(base_path: Path, repo_path: Path) -> None:
+    """
+    Ensures that the base directory of all test repositories and the specific
+    repository directory exist.
+
+    Args:
+        base_path (Path) : The base path of all repositories.
+        repo_path (Path) : The path to the repository (must be a subdirectory
+                           of `base_path`).
+    """
+    assert repo_path.is_relative_to(base_path), (
+        f"Repository path {repo_path.absolute()} must be a "
+        f"subdirectory of the base path {base_path.absolute()}."
+    )
     base_path.mkdir(parents=True, exist_ok=True)
-    repo_path.mkdir(parents=False, exist_ok=exist_ok)
-    return repo_path
+    repo_path.mkdir(parents=False, exist_ok=False)
 
 
 class TestRepository:
@@ -78,8 +95,8 @@ class TestRepository:
         self.tag = tag
         self.remote_base_path = remote_base_path
         self.local_base_path = local_base_path
-        self.remote_path = _setup_repository_path(remote_base_path, tag, exist_ok)
-        self.local_path = _setup_repository_path(local_base_path, tag, exist_ok)
+        self.remote_path = remote_base_path / tag
+        self.local_path = local_base_path / tag
         # ignore return code of this command as it may fail if config option is not set
         default_branch = git(
             "config", "--global", "init.defaultBranch", check=False
@@ -87,6 +104,8 @@ class TestRepository:
         self.default_branch = default_branch if default_branch else DEFAULT_BRANCH
 
     def initialize_repo(self) -> None:
+        _setup_repository_path(self.remote_base_path, self.remote_path)
+        _setup_repository_path(self.local_base_path, self.local_path)
         print(git("init", "--bare", cwd=self.remote_path).stdout)
         print(git("clone", str(self.remote_path), ".", cwd=self.local_path).stdout)
         _set_git_config(self.local_path)

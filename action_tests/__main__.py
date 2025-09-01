@@ -19,10 +19,10 @@ def _prepare() -> None:
 
     for name, s in scenarios():
         print("-- Setting up scenario:", name)
-        repo = TestRepository(name, REMOTE_PATH, LOCAL_PATH, exist_ok=False)
+        repo = TestRepository(name, REMOTE_PATH, LOCAL_PATH)
+        repo.initialize_repo()
         print("---- Remote path:", repo.remote_path)
         print("---- Local path:", repo.local_path)
-        repo.initialize_repo()
 
         shutil.copytree(s.path, repo.local_path, dirs_exist_ok=True)
 
@@ -51,6 +51,7 @@ if __name__ == "__main__":
         if s is None:
             raise ValueError(f"Scenario '{args.check}' not found.")
         print(f"Verifying integration test outputs for '{s.name}'")
-        s.verify()
+        repo = TestRepository(s.name, REMOTE_PATH, LOCAL_PATH)
+        s.verify(repo)
     else:
         _prepare()

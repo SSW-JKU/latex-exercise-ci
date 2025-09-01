@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Iterable
 
+from .test_repository import TestRepository
+
 # auto-register scenario to simplify access and iteration
 _scenarios = dict[str, "Scenario"]()
 
@@ -29,7 +31,7 @@ class Scenario(ABC):
         self.path = Path(".") / "action_tests" / "_files" / Path(*path)
 
     @abstractmethod
-    def verify(self) -> None: ...
+    def verify(self, repo: TestRepository) -> None: ...
 
 
 #### OLD BUILD SYSTEM ####
@@ -42,7 +44,7 @@ class OldBuildWorkingNoChecksum(Scenario):
             ["old_build_system", "working_build_no_checksum"],
         )
 
-    def verify(self) -> None:
+    def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
         # TODO:
 
@@ -54,7 +56,7 @@ class OldBuildWorkingSameChecksum(Scenario):
             ["old_build_system", "working_build_same_checksum"],
         )
 
-    def verify(self) -> None:
+    def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
         # TODO:
 
@@ -66,7 +68,7 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
             ["old_build_system", "working_build_same_checksum_no_pdf"],
         )
 
-    def verify(self) -> None:
+    def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
         # TODO:
 
@@ -78,7 +80,7 @@ class OldBuildWorkingWrongCheckSum(Scenario):
             ["old_build_system", "working_build_wrong_checksum"],
         )
 
-    def verify(self) -> None:
+    def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
         # TODO:
 
