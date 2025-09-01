@@ -80,18 +80,10 @@ class TestRepository:
         self.local_base_path = local_base_path
         self.remote_path = _setup_repository_path(remote_base_path, tag, exist_ok)
         self.local_path = _setup_repository_path(local_base_path, tag, exist_ok)
-        default_branch_config = git(
+        # ignore return code of this command as it may fail if config option is not set
+        default_branch = git(
             "config", "--global", "init.defaultBranch", check=False
-        )
-        if default_branch_config.returncode != 0:
-            raise RuntimeError(
-                "Could not determine git default branch name - "
-                "'git config --global init.defaultBranch' "
-                "returned non-zero exit code.\n"
-                f"STDOUT={default_branch_config.stdout}\n"
-                f"STDERR={default_branch_config.stderr}"
-            )
-        default_branch = default_branch_config.stdout.strip()
+        ).stdout.strip()
         self.default_branch = default_branch if default_branch else DEFAULT_BRANCH
 
     def initialize_repo(self) -> None:
