@@ -85,11 +85,11 @@ class TestRepository:
         )
         if default_branch_config.returncode != 0:
             raise RuntimeError(
-                f"Could not determine git default branch name - "
+                "Could not determine git default branch name - "
                 "'git config --global init.defaultBranch' "
                 "returned non-zero exit code.\n"
-                "STDOUT={default_branch_config.stdout}\n"
-                "STDERR={default_branch_config.stderr}"
+                f"STDOUT={default_branch_config.stdout}\n"
+                f"STDERR={default_branch_config.stderr}"
             )
         default_branch = default_branch_config.stdout.strip()
         self.default_branch = default_branch if default_branch else DEFAULT_BRANCH
