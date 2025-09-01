@@ -63,7 +63,7 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
     def __init__(self) -> None:
         super().__init__(
             "old_build_working_same_checksum_no_pdf",
-            ["old_build_system", "working_same_checksum_no_pdf"],
+            ["old_build_system", "working_build_same_checksum_no_pdf"],
         )
 
     def verify(self) -> None:
