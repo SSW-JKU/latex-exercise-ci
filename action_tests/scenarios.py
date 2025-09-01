@@ -4,15 +4,28 @@ Defines various integration test scenarios and their verification steps.
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Iterable
+
+# auto-register scenario to simplify access and iteration
+_scenarios = dict[str, "Scenario"]()
+
+
+def _add_scenario(s: "Scenario") -> None:
+    assert s.name not in _scenarios, f"Scenario '{s.name}' already registered."
+    _scenarios[s.name] = s
+
+
+def get_scenario(name: str) -> "Scenario | None":
+    return _scenarios.get(name, None)
+
+
+def scenarios() -> Iterable[tuple[str, "Scenario"]]:
+    return _scenarios.items()
 
 
 class Scenario(ABC):
-    REGISTRY = dict[str, "Scenario"]()
-
     def __init__(self, name: str, path: list[str]) -> None:
         self.name = name
-        # auto-register scenario to simplify access and iteration
-        Scenario.REGISTRY[name] = self
         self.path = Path(".") / "_files" / Path(*path)
 
     @abstractmethod
@@ -71,3 +84,9 @@ class OldBuildWorkingWrongCheckSum(Scenario):
 
 
 #### NEW BUILD SYSTEM ####
+
+
+_add_scenario(OldBuildWorkingNoChecksum())
+_add_scenario(OldBuildWorkingSameChecksum())
+_add_scenario(OldBuildWorkingSameChecksumNoPDF())
+_add_scenario(OldBuildWorkingWrongCheckSum())
