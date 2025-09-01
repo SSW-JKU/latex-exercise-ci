@@ -1,3 +1,4 @@
+from pathlib import Path
 import subprocess
 import shutil
 import argparse
@@ -23,6 +24,8 @@ def _prepare() -> None:
         print("---- Remote path:", repo.remote_path)
         print("---- Local path:", repo.local_path)
         repo.initialize_repo()
+
+        print("Current path:", Path(".").absolute())
 
         shutil.copytree(s.path, repo.local_path, dirs_exist_ok=False)
 
