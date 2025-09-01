@@ -17,7 +17,10 @@ def _check_git_installed() -> None:
 def _prepare() -> None:
 
     for name, s in Scenario.REGISTRY.items():
+        print("-- Setting up scenario:", name)
         repo = TestRepository(name, REMOTE_PATH, LOCAL_PATH, exist_ok=False)
+        print("---- Remote path:", repo.remote_path)
+        print("---- Local path:", repo.local_path)
         repo.initialize_repo()
 
         shutil.copytree(s.path, repo.local_path, dirs_exist_ok=False)
