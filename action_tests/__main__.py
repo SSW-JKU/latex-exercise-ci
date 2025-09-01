@@ -1,4 +1,3 @@
-from pathlib import Path
 import subprocess
 import shutil
 import argparse
@@ -25,7 +24,7 @@ def _prepare() -> None:
         print("---- Local path:", repo.local_path)
         repo.initialize_repo()
 
-        shutil.copytree(s.path, repo.local_path, dirs_exist_ok=False)
+        shutil.copytree(s.path, repo.local_path, dirs_exist_ok=True)
 
         repo.commit_all("Initial commit")
         repo.push()
