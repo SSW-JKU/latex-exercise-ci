@@ -113,7 +113,7 @@ jobs:
       - name: Prepare repositories and test files
         run: python -m action_tests
 
-      - name: "Integration test 1 (old build system): Test successful build without existing checksum"
+      - name: "Integration test 1: Test successful build without existing checksum (old build system)"
         uses: ./
         if: always()
         with:
@@ -129,7 +129,7 @@ jobs:
 
       # Integration test 2
 
-      - name: "Old build system: Test no build with same checksum and existing PDFs"
+      - name: "Integration test 2: Test no build with same checksum and existing PDFs (old build system)"
         uses: ./
         if: always()
         with:
@@ -145,7 +145,7 @@ jobs:
 
       # Integration test 3
 
-      - name: "Old build system: Test no build with same checksum but no existing PDF"
+      - name: "Integration test 3: Test no build with same checksum but no existing PDF (old build system)"
         uses: ./
         if: always()
         with:
@@ -155,13 +155,13 @@ jobs:
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
 
-      - name: Verify integration test 2
+      - name: Verify integration test 3
         if: always()
         run: python -m action_tests --check old_build_working_same_checksum_no_pdf
 
       # Integration test 4
 
-      - name: "Old build system: Test no build with wrong checksum"
+      - name: "Integration test 4: Test no build with wrong checksum (old build system)"
         uses: ./
         if: always()
         with:
@@ -171,7 +171,7 @@ jobs:
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
 
-      - name: Verify integration test 2
+      - name: Verify integration test 4
         if: always()
         run: python -m action_tests --check old_build_working_wrong_checksum
 
