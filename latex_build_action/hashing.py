@@ -102,7 +102,7 @@ def check_dirhash(basepath: Path,
     """
     new_hash = hash_directory(basepath, ignore)
     saved_hash = read_cached_dirhash(basepath)
-    log.debug('Checking cached hash for path %s. Cached hash = %s, new hash = %s',
+    log.info('Checking cached hash for path %s. Cached hash = %s, new hash = %s',
               str(basepath), str(saved_hash), str(new_hash))
     return (saved_hash is not None and new_hash == saved_hash, new_hash)
 
