@@ -137,6 +137,7 @@ class Scenario(ABC):
         self, repo: TestRepository, *changed_files: list[str]
     ) -> None:
         log = self.get_oneline_log(repo)
+        print(f"git commit log:\n'{log}'")
         lines = log.split("\n")
         _assert_eq(2, len(lines), "Unexpected number of commits")
         setup_commit, bot_commit = lines
@@ -171,6 +172,7 @@ class Scenario(ABC):
 
     def assert_no_bot_commit(self, repo: TestRepository) -> None:
         log = self.get_oneline_log(repo)
+        print(f"git commit log:\n'{log}'")
         lines = log.split("\n")
         _assert_eq(1, len(lines), "Unexpected number of commits")
         _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
