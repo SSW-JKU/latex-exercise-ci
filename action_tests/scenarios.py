@@ -245,7 +245,7 @@ class Scenario(ABC):
         """
         github_output = os.getenv("GITHUB_OUTPUT")
         if github_output:
-            with open(github_output, "a", encoding="UTF-8") as f:
+            with open(github_output, "r", encoding="UTF-8") as f:
                 lines = f.read().split("\n")
                 variables = [
                     line.removeprefix("changed-exercises=")
