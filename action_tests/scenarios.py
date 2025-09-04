@@ -103,7 +103,7 @@ class Scenario(ABC):
         self, repo: TestRepository, *changed_files: list[str]
     ) -> None:
         log = self.get_oneline_log(repo)
-        print("got commit log:\n", log)
+        print(f"got commit log:\n'{log}'")
         lines = log.split("\n")
         _assert_eq(2, len(lines), "Unexpected number of commits")
         setup_commit, bot_commit = lines
@@ -113,26 +113,32 @@ class Scenario(ABC):
 
         actual_changes = set(self.get_changed_files(repo).split("\n"))
 
-        expected_changes = set(["/".join(path) for path in changed_files])
+        expected_changes = {"/".join(path) for path in changed_files}
 
         missing_changed = expected_changes.difference(actual_changes)
 
         error_msg: str = ""
 
         if len(missing_changed) != 0:
-            error_msg += f"\nThe following files should have been modified:\n{'\n'.join(missing_changed)}"
+            error_msg += (
+                "\nThe following files should have been modified:\n"
+                "{'\n'.join(missing_changed)}"
+            )
 
         unexpectedly_modified = actual_changes.difference(expected_changes)
 
         if len(unexpectedly_modified) != 0:
-            error_msg += f"\nThe following files should not have been modified:\n{'\n'.join(unexpectedly_modified)}"
+            error_msg += (
+                "\nThe following files should not have been modified:"
+                "\n{'\n'.join(unexpectedly_modified)}"
+            )
 
         if error_msg != "":
             raise AssertionError(f"Invalid changed files:{error_msg}")
 
     def assert_no_bot_commit(self, repo: TestRepository) -> None:
         log = self.get_oneline_log(repo)
-        print("got commit log:\n", log)
+        print(f"got commit log:\n'{log}'")
         lines = log.split("\n")
         _assert_eq(1, len(lines), "Unexpected number of commits")
         _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)

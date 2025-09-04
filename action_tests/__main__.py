@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+
+"""
+Preparation and verification script for the integration tests.
+This script prepares the test repositories and sets up the test files for the integration tests or
+performs verification after the action was executed.
+"""
+
 import subprocess
 import shutil
 import argparse
@@ -17,17 +25,17 @@ def _check_git_installed() -> None:
 def _prepare() -> None:
     print("Setting up repositories and files")
 
-    for name, s in scenarios():
+    for name, scenario in scenarios():
         print("-- Setting up scenario:", name)
-        repo = TestRepository(name, REMOTE_PATH, LOCAL_PATH)
-        repo.initialize_repo()
-        print("---- Remote path:", repo.remote_path)
-        print("---- Local path:", repo.local_path)
+        test_repo = TestRepository(name, REMOTE_PATH, LOCAL_PATH)
+        test_repo.initialize_repo()
+        print("---- Remote path:", test_repo.remote_path)
+        print("---- Local path:", test_repo.local_path)
 
-        shutil.copytree(s.path, repo.local_path, dirs_exist_ok=True)
+        shutil.copytree(scenario.path, test_repo.local_path, dirs_exist_ok=True)
 
-        repo.commit_all("Initial commit")
-        repo.push()
+        test_repo.commit_all("Initial commit")
+        test_repo.push()
 
 
 def _parse_args() -> argparse.Namespace:
