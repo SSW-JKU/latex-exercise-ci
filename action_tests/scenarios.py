@@ -97,7 +97,7 @@ class Scenario(ABC):
             r"--format=%an:%ae:%s",
             check=True,
             cwd=repo.local_path,
-        ).stdout
+        ).stdout.strip()
 
     def assert_bot_commit(
         self, repo: TestRepository, *changed_files: list[str]
