@@ -94,7 +94,7 @@ class Scenario(ABC):
         return git(
             "log",
             "--oneline",
-            r"--format=%an:%ae:%s",
+            r"--format=%cn:%ce:%s",
             check=True,
             cwd=repo.local_path,
         ).stdout.strip()
