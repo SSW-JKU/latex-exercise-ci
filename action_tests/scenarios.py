@@ -188,7 +188,6 @@ class Scenario(ABC):
                                          relative to the local repository)
         """
         log = self.get_oneline_log(repo)
-        print(f"git commit log:\n'{log}'")
         lines = log.split("\n")
         _assert_eq(2, len(lines), "Unexpected number of commits")
         bot_commit, initial_commit = lines
@@ -230,7 +229,6 @@ class Scenario(ABC):
                                     working directory
         """
         log = self.get_oneline_log(repo)
-        print(f"git commit log:\n'{log}'")
         lines = log.split("\n")
         _assert_eq(1, len(lines), "Unexpected number of commits")
         _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
@@ -314,20 +312,17 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
+            ["22W", "Ex03", ".checksum"],
             ["22W", "Ex03", "Aufgabe", "Ex03.pdf"],
             ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
             ["22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
             ["22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
-        ]
-
-        existing_files = [
-            ["22W", "Ex03", ".checksum"],
             ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
         ]
 
         self.assert_bot_commit(repo, *modified_files)
 
-        for f in modified_files + existing_files:
+        for f in modified_files:
             self.assert_is_file(repo, *f)
 
 
