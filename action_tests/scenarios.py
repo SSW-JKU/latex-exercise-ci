@@ -113,6 +113,7 @@ class Scenario(ABC):
             check=True,
             cwd=repo.local_path,
         ).stdout
+        print("got commit log:\n", log)
         lines = log.split("\n")
         _assert_eq(2, len(lines), "Unexpected number of commits")
         setup_commit, bot_commit = lines
