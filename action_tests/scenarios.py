@@ -161,13 +161,13 @@ class OldBuildWorkingNoChecksum(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
-            ["22WS", "Ex01", ".checksum"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["22WS", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
-            ["22WS", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+            ["22W", "Ex01", ".checksum"],
+            ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
+            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
+            ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
+            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
+            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
         ]
 
         self.assert_bot_commit(repo, *new_files)
@@ -200,15 +200,15 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["22WS", "Ex03", "Aufgabe", "Ex03.pdf"],
-            ["22WS", "Ex03", "Aufgabe", "Ex03.build_log"],
-            ["22WS", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
-            ["22WS", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
+            ["22W", "Ex03", "Aufgabe", "Ex03.pdf"],
+            ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
+            ["22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
+            ["22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
         ]
 
         existing_files = [
-            ["22WS", "Ex03", ".checksum"],
-            ["22WS", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
+            ["22W", "Ex03", ".checksum"],
+            ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
         ]
 
         self.assert_bot_commit(repo, *modified_files)
@@ -228,13 +228,13 @@ class OldBuildWorkingWrongCheckSum(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["22WS", "Ex01", ".checksum"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["22WS", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["22WS", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
-            ["22WS", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+            ["22W", "Ex01", ".checksum"],
+            ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
+            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
+            ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
+            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
+            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
         ]
 
         self.assert_bot_commit(repo, *modified_files)
