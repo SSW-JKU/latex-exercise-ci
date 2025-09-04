@@ -252,6 +252,8 @@ class Scenario(ABC):
                     for line in lines
                     if line.startswith("changed-exercises=")
                 ]
+                print(f"action outputs:'{'\n'.join(lines)}'\n")
+                print(f"action output variables:'{variables}'\n")
                 last_result = variables[-1]
                 _assert_eq(expected_result, last_result, "Invalid action result")
 
@@ -378,8 +380,8 @@ class OldBuildWorkingWrongCheckSum(Scenario):
             ["22W", "Ex04", "Aufgabe", "Ex04.build_log"],
             ["22W", "Ex04", "Aufgabe", "Ex04_solution.pdf"],
             ["22W", "Ex04", "Aufgabe", "Ex04_solution.build_log"],
-            ["22W", "Ex04", "Unterricht", "Ex01_Lernziele.pdf"],
-            ["22W", "Ex04", "Unterricht", "Ex01_Lernziele.build_log"],
+            ["22W", "Ex04", "Unterricht", "Ex04_Lernziele.pdf"],
+            ["22W", "Ex04", "Unterricht", "Ex04_Lernziele.build_log"],
         ]
 
         self.assert_bot_commit(repo, *modified_files)
