@@ -20,6 +20,17 @@ DEFAULT_EMAIL = "test@user.com"
 def git(
     *commands: str, check: bool = True, cwd: Optional[Path] = None
 ) -> subprocess.CompletedProcess[str]:
+    """
+    Helper to execute a git command.
+    The "git" prefix is automatically prepended.
+
+    Args:
+        *commands (str) : The git commands to execute.
+        check (bool, default: True) : Check that the command exited with a
+                                      result code of 0
+        cwd (Path | None, default: None) : The working directory in which the
+                                           git command should be executed
+    """
     return subprocess.run(
         ["git", *commands], capture_output=True, text=True, check=check, cwd=cwd
     )
@@ -77,6 +88,10 @@ class TestRepository:
         self.default_branch = default_branch if default_branch else DEFAULT_BRANCH
 
     def initialize_repo(self) -> None:
+        """
+        Initializes the remote and the local clone of the test repository.
+        """
+
         _setup_repository_path(self.remote_base_path, self.remote_path)
         _setup_repository_path(self.local_base_path, self.local_path)
         print(git("init", "--bare", cwd=self.remote_path).stdout)
@@ -84,6 +99,14 @@ class TestRepository:
         _set_git_config(self.local_path)
 
     def commit_all(self, message: Optional[str] = None) -> None:
+        """
+        Commits all changes in the repository.
+
+        Args:
+            message (str | None) : An optional commit message
+                                   (otherwise a random message is generated)
+        """
+
         if message is None:
             message = "".join(choice("abcdefghijklmnopqrstuvwxyz") for _ in range(8))
 
@@ -91,4 +114,7 @@ class TestRepository:
         git("commit", "-am", message, cwd=self.local_path)
 
     def push(self) -> None:
+        """
+        Pushes the commits to the remote.
+        """
         git("push", "origin", self.default_branch, cwd=self.local_path)
