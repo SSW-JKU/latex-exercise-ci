@@ -184,5 +184,7 @@ def build_exercise(
             return (False, 0)
         return (True, result)
 
-    log.warning("%s: Exercise directory does not exist", exercise)
+    log.warning(
+        "%s: Exercise directory (%s) does not exist", exercise, str(basepath.absolute())
+    )
     return (False, 0)
