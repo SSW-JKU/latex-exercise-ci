@@ -18,11 +18,17 @@ _scenarios = dict[str, "Scenario"]()
 
 
 def _add_scenario(s: "Scenario") -> None:
+    """
+    Registers the given scenario in the `scenarios` dictionary.
+
+    Args:
+        s (Scenario) : The test scenario to register.
+    """
     assert s.name not in _scenarios, f"Scenario '{s.name}' already registered."
     _scenarios[s.name] = s
 
 
-def get_scenario(name: str) -> "Scenario | None":
+def get_scenario(name: str) -> Optional["Scenario"]:
     return _scenarios.get(name, None)
 
 
@@ -92,6 +98,7 @@ class Scenario(ABC):
             check=True,
             cwd=repo.local_path,
         ).stdout
+        print("got commit log:\n", log)
         lines = log.split("\n")
         _assert_eq(1, len(lines), "Unexpected number of commits")
         _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
