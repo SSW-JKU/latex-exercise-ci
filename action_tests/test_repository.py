@@ -90,7 +90,6 @@ class TestRepository:
         tag: str,
         remote_base_path: Path,
         local_base_path: Path,
-        exist_ok: bool = True,
     ) -> None:
         self.tag = tag
         self.remote_base_path = remote_base_path
