@@ -90,29 +90,19 @@ class Scenario(ABC):
             str(file_path),
         )
 
-    def assert_no_bot_commit(self, repo: TestRepository) -> None:
-        log = git(
+    def get_oneline_log(self, repo: TestRepository) -> str:
+        return git(
             "log",
             "--oneline",
-            r'--format="%an:%ae:%s"',
+            r"--format=%an:%ae:%s",
             check=True,
             cwd=repo.local_path,
         ).stdout
-        print("got commit log:\n", log)
-        lines = log.split("\n")
-        _assert_eq(1, len(lines), "Unexpected number of commits")
-        _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
 
     def assert_bot_commit(
         self, repo: TestRepository, *changed_files: list[str]
     ) -> None:
-        log = git(
-            "log",
-            "--oneline",
-            r'--format="%an:%ae:%s"',
-            check=True,
-            cwd=repo.local_path,
-        ).stdout
+        log = self.get_oneline_log(repo)
         print("got commit log:\n", log)
         lines = log.split("\n")
         _assert_eq(2, len(lines), "Unexpected number of commits")
@@ -121,9 +111,7 @@ class Scenario(ABC):
         _check_commit(setup_commit, DEFAULT_USER, DEFAULT_EMAIL)
         _check_commit(bot_commit, BOT_NAME, BOT_EMAIL, BOT_COMMIT_MSG)
 
-        actual_changes = set(
-            git("log", "--name-only", '--pretty=""', "HEAD~1..HEAD").stdout.split("\n")
-        )
+        actual_changes = set(self.get_changed_files(repo).split("\n"))
 
         expected_changes = set(["/".join(path) for path in changed_files])
 
@@ -141,6 +129,13 @@ class Scenario(ABC):
 
         if error_msg != "":
             raise AssertionError(f"Invalid changed files:{error_msg}")
+
+    def assert_no_bot_commit(self, repo: TestRepository) -> None:
+        log = self.get_oneline_log(repo)
+        print("got commit log:\n", log)
+        lines = log.split("\n")
+        _assert_eq(1, len(lines), "Unexpected number of commits")
+        _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
 
     @abstractmethod
     def verify(self, repo: TestRepository) -> None: ...

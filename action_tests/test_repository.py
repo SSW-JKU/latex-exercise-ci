@@ -25,32 +25,6 @@ def git(
     )
 
 
-# def _parse_args() -> argparse.Namespace:
-#     parser = argparse.ArgumentParser(
-#         description="Setup test git repositories for integration tests."
-#     )
-#     parser.add_argument(
-#         "id",
-#         type=str,
-#         help="Identifier for the repository pair that is used as a"\
-#              "relative path from the base path for each repository.",
-#     )
-#     parser.add_argument(
-#         "--remote-path",
-#         type=Path,
-#         default=REMOTE_PATH,
-#         help="Base path of the test remote repository.",
-#     )
-#     parser.add_argument(
-#         "--local-path",
-#         type=Path,
-#         default=LOCAL_PATH,
-#         help="Base path of the test local repository.",
-#     )
-
-#     return parser.parse_args()
-
-
 def _set_git_config(repo_dir: Path) -> None:
     """
     Sets git author and email configuration for the given repository.
