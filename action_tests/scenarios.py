@@ -208,7 +208,7 @@ class Scenario(ABC):
         if len(missing_changed) != 0:
             error_msg += (
                 "\nThe following files should have been modified:\n"
-                "{'\n'.join(missing_changed)}"
+                f"{'\n'.join(missing_changed)}"
             )
 
         unexpectedly_modified = actual_changes.difference(expected_changes)
@@ -216,7 +216,7 @@ class Scenario(ABC):
         if len(unexpectedly_modified) != 0:
             error_msg += (
                 "\nThe following files should not have been modified:"
-                "\n{'\n'.join(unexpectedly_modified)}"
+                f"\n{'\n'.join(unexpectedly_modified)}"
             )
 
         if error_msg != "":
