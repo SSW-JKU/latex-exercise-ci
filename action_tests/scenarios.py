@@ -101,7 +101,7 @@ class Scenario(ABC):
         log = git(
             "log",
             "--name-only",
-            '--pretty=""',
+            '--pretty=',
             "HEAD~1..HEAD",
             check=True,
             cwd=repo.local_path,
