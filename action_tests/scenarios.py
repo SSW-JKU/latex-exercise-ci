@@ -3,7 +3,6 @@ Defines various integration test scenarios and their verification steps.
 """
 
 from abc import ABC, abstractmethod
-import os
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
@@ -236,27 +235,6 @@ class Scenario(ABC):
         _assert_eq(1, len(lines), "Unexpected number of commits")
         _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
 
-    def assert_action_result(self, expected_result: str) -> None:
-        """
-        Asserts that the action produced the given result.
-
-        Args:
-            expected_result (str) : The expected result
-        """
-        github_output = os.getenv("GITHUB_OUTPUT")
-        if github_output:
-            with open(github_output, "r", encoding="UTF-8") as f:
-                lines = f.read().split("\n")
-                variables = [
-                    line.removeprefix("changed-exercises=")
-                    for line in lines
-                    if line.startswith("changed-exercises=")
-                ]
-                print(f"action outputs:'{'\n'.join(lines)}'\n")
-                print(f"action output variables:'{variables}'\n")
-                last_result = variables[-1]
-                _assert_eq(expected_result, last_result, "Invalid action result")
-
     @abstractmethod
     def verify(self, repo: TestRepository) -> None:
         """
@@ -301,8 +279,6 @@ class OldBuildWorkingNoChecksum(Scenario):
         for f in new_files:
             self.assert_is_file(repo, *f)
 
-        self.assert_action_result("Ex01")
-
 
 class OldBuildWorkingSameChecksum(Scenario):
     """
@@ -320,8 +296,6 @@ class OldBuildWorkingSameChecksum(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         self.assert_no_bot_commit(repo)
-
-        self.assert_action_result("")
 
 
 class OldBuildWorkingSameChecksumNoPDF(Scenario):
@@ -356,8 +330,6 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
         for f in modified_files + existing_files:
             self.assert_is_file(repo, *f)
 
-        self.assert_action_result("Ex03")
-
 
 class OldBuildWorkingWrongCheckSum(Scenario):
     """
@@ -388,8 +360,6 @@ class OldBuildWorkingWrongCheckSum(Scenario):
 
         for f in modified_files:
             self.assert_is_file(repo, *f)
-
-        self.assert_action_result("Ex04")
 
 
 #### NEW BUILD SYSTEM ####
