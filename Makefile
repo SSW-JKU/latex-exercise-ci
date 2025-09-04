@@ -1,7 +1,7 @@
 lint:
 	pylint latex_build_action
 	pylint tests
-# 	pylint action_tests
+	pylint action_tests
 
 typecheck:
 	mypy -p latex_build_action

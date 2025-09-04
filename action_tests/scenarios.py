@@ -93,22 +93,45 @@ def _check_commit(
 
 
 class Scenario(ABC):
+    """
+    An abstract integration test scenario.
+    """
+
     def __init__(self, name: str, path: list[str]) -> None:
         self.name = name
         self.path = Path(".") / "action_tests" / "_files" / Path(*path)
 
-    def get_changed_files(self, repo: TestRepository) -> str:
+    def get_changed_files(self, repo: TestRepository) -> list[str]:
+        """
+        Retrieves a list of files marked as changed in the build commit.
+
+        Args:
+            repo (TestRepository) : The test repository that defines the
+                                    working directory
+
+        Returns:
+            (list[str]) A list of all changed files (all relative to the local
+            repository)
+        """
         log = git(
             "log",
             "--name-only",
-            '--pretty=',
+            "--pretty=",
             "HEAD~1..HEAD",
             check=True,
             cwd=repo.local_path,
         )
-        return log.stdout
+        return log.stdout.strip().split("\n")
 
     def assert_is_file(self, repo: TestRepository, *path: str) -> None:
+        """
+        Asserts that the given file exists.
+
+        Args:
+            repo (TestRepository) : The test repository that defines the
+                                    working directory
+            *path (str) : The (relative) path to the target file
+        """
         file_path = repo.local_path.joinpath(*path)
         _assert(
             file_path.is_file(),
@@ -117,6 +140,14 @@ class Scenario(ABC):
         )
 
     def assert_is_no_file(self, repo: TestRepository, *path: str) -> None:
+        """
+        Asserts that the given file does not exist.
+
+        Args:
+            repo (TestRepository) : The test repository that defines the
+                                    working directory
+            *path (str) : The (relative) path to the target file
+        """
         file_path = repo.local_path.joinpath(*path)
         _assert(
             not file_path.is_file(),
@@ -125,6 +156,17 @@ class Scenario(ABC):
         )
 
     def get_oneline_log(self, repo: TestRepository) -> str:
+        """
+        Retrieves the git log output for the current repository in --oneline
+        format and using the pattern '%cn:%ce:%s'.
+
+        Args:
+            repo (TestRepository) : The test repository that defines the
+                                    working directory
+
+        Returns:
+            (str) The log output
+        """
         return git(
             "log",
             "--oneline",
@@ -136,6 +178,16 @@ class Scenario(ABC):
     def assert_bot_commit(
         self, repo: TestRepository, *changed_files: list[str]
     ) -> None:
+        """
+        Asserts that a bot commit happened and verifies the commit messages
+        and commiters.
+
+        Args:
+            repo (TestRepository) : The test repository that defines the
+                                    working directory
+            *changed_files (list[str]) : The list of changed files (paths
+                                         relative to the local repository)
+        """
         log = self.get_oneline_log(repo)
         print(f"git commit log:\n'{log}'")
         lines = log.split("\n")
@@ -145,7 +197,7 @@ class Scenario(ABC):
         _check_commit(initial_commit, DEFAULT_USER, DEFAULT_EMAIL)
         _check_commit(bot_commit, BOT_NAME, BOT_EMAIL, BOT_COMMIT_MSG)
 
-        actual_changes = set(self.get_changed_files(repo).split("\n"))
+        actual_changes = set(self.get_changed_files(repo))
 
         expected_changes = {"/".join(path) for path in changed_files}
 
@@ -171,6 +223,13 @@ class Scenario(ABC):
             raise AssertionError(f"Invalid changed files:{error_msg}")
 
     def assert_no_bot_commit(self, repo: TestRepository) -> None:
+        """
+        Asserts that no bot commit happened.
+
+        Args:
+            repo (TestRepository) : The test repository that defines the
+                                    working directory
+        """
         log = self.get_oneline_log(repo)
         print(f"git commit log:\n'{log}'")
         lines = log.split("\n")
@@ -178,6 +237,12 @@ class Scenario(ABC):
         _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
 
     def assert_action_result(self, expected_result: str) -> None:
+        """
+        Asserts that the action produced the given result.
+
+        Args:
+            expected_result (str) : The expected result
+        """
         github_output = os.getenv("GITHUB_OUTPUT")
         if github_output:
             with open(github_output, "a", encoding="UTF-8") as f:
@@ -191,13 +256,25 @@ class Scenario(ABC):
                 _assert_eq(expected_result, last_result, "Invalid action result")
 
     @abstractmethod
-    def verify(self, repo: TestRepository) -> None: ...
+    def verify(self, repo: TestRepository) -> None:
+        """
+        Verifies this test scenario by checking the commits and files.
+
+        Args:
+            repo (TestRepository) : The test repository that defines the
+                                    working directory
+        """
 
 
 #### OLD BUILD SYSTEM ####
 
 
 class OldBuildWorkingNoChecksum(Scenario):
+    """
+    Integration test scenario that checks that there is always a rebuild if the
+    checksum file does not exist.
+    """
+
     def __init__(self) -> None:
         super().__init__(
             "old_build_working_no_checksum",
@@ -226,6 +303,11 @@ class OldBuildWorkingNoChecksum(Scenario):
 
 
 class OldBuildWorkingSameChecksum(Scenario):
+    """
+    Integration test scenario that checks that there is no build when the
+    checksum matches and all PDFs exist.
+    """
+
     def __init__(self) -> None:
         super().__init__(
             "old_build_working_same_checksum",
@@ -241,6 +323,11 @@ class OldBuildWorkingSameChecksum(Scenario):
 
 
 class OldBuildWorkingSameChecksumNoPDF(Scenario):
+    """
+    Integration test scenario that checks that even a valid checksum to a
+    missing PDF causes a build.
+    """
+
     def __init__(self) -> None:
         super().__init__(
             "old_build_working_same_checksum_no_pdf",
@@ -271,6 +358,11 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
 
 
 class OldBuildWorkingWrongCheckSum(Scenario):
+    """
+    Integration test scenario that checks that an invalid checksum causes a
+    rebuild.
+    """
+
     def __init__(self) -> None:
         super().__init__(
             "old_build_working_wrong_checksum",
