@@ -140,9 +140,9 @@ class Scenario(ABC):
         print(f"git commit log:\n'{log}'")
         lines = log.split("\n")
         _assert_eq(2, len(lines), "Unexpected number of commits")
-        setup_commit, bot_commit = lines
+        bot_commit, initial_commit = lines
 
-        _check_commit(setup_commit, DEFAULT_USER, DEFAULT_EMAIL)
+        _check_commit(initial_commit, DEFAULT_USER, DEFAULT_EMAIL)
         _check_commit(bot_commit, BOT_NAME, BOT_EMAIL, BOT_COMMIT_MSG)
 
         actual_changes = set(self.get_changed_files(repo).split("\n"))
