@@ -102,7 +102,7 @@ def check_dirhash(basepath: Path,
     """
     new_hash = hash_directory(basepath, ignore)
     saved_hash = read_cached_dirhash(basepath)
-    log.info('Checking cached hash for path %s. Cached hash = %s, new hash = %s',
+    log.debug('Checking cached hash for path %s. Cached hash = %s, new hash = %s',
               str(basepath), str(saved_hash), str(new_hash))
     return (saved_hash is not None and new_hash == saved_hash, new_hash)
 
@@ -143,9 +143,9 @@ def check_and_update_hash(basepath: Path,
         basepath), str(ignore))
     cache, result = on_mismatch()
     if cache:
-        log.info('Function after hash mismatch in path %s resulted in new hash %s', str(
+        log.debug('Function after hash mismatch in path %s resulted in new hash %s', str(
             basepath), str(new_hash))
         cache_dirhash(basepath, new_hash)
-    log.info('Result after hash mismach in path %s is %s',
+    log.debug('Result after hash mismach in path %s is %s',
               str(basepath), str(result))
     return result
