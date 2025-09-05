@@ -12,6 +12,8 @@ BOT_NAME = "Integration Test Build[bot]"
 BOT_EMAIL = "integration-test-bot@users.noreply.github.com"
 BOT_COMMIT_MSG = "Build TEX files"
 
+SUCCESS_OUTCOME = "success"
+FAILURE_OUTCOME = "failure"
 
 # auto-register scenario to simplify access and iteration
 _scenarios = dict[str, "Scenario"]()
@@ -96,9 +98,10 @@ class Scenario(ABC):
     An abstract integration test scenario.
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, expected_outcome: str) -> None:
         self.name = name
         self.path = Path(".") / "action_tests" / "_files" / name
+        self.expected_outcome = expected_outcome
 
     def get_changed_files(self, repo: TestRepository) -> list[str]:
         """
@@ -233,6 +236,17 @@ class Scenario(ABC):
         _assert_eq(1, len(lines), "Unexpected number of commits")
         _check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
 
+    # pylint: disable=line-too-long
+    def check_outcome(self, outcome: str) -> None:
+        """
+        Checks the previous action outcome based on the expected one.
+        (see https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#steps-context).
+
+        Args:
+            outcome (str) : The outcome of the previously executed action.
+        """
+        _assert_eq(self.expected_outcome, outcome, "Invalid action outcome")
+
     @abstractmethod
     def verify(self, repo: TestRepository) -> None:
         """
@@ -254,7 +268,7 @@ class OldBuildSuccessNoChecksum(Scenario):
     """
 
     def __init__(self) -> None:
-        super().__init__("old_build_success_no_checksum")
+        super().__init__("old_build_success_no_checksum", SUCCESS_OUTCOME)
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
@@ -282,7 +296,7 @@ class OldBuildSuccessSameChecksum(Scenario):
     """
 
     def __init__(self) -> None:
-        super().__init__("old_build_success_same_checksum")
+        super().__init__("old_build_success_same_checksum", SUCCESS_OUTCOME)
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
@@ -297,7 +311,7 @@ class OldBuildSuccessSameChecksumNoPDF(Scenario):
     """
 
     def __init__(self) -> None:
-        super().__init__("old_build_success_same_checksum_no_pdf")
+        super().__init__("old_build_success_same_checksum_no_pdf", SUCCESS_OUTCOME)
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
@@ -323,7 +337,7 @@ class OldBuildSuccessWrongCheckSum(Scenario):
     """
 
     def __init__(self) -> None:
-        super().__init__("old_build_success_wrong_checksum")
+        super().__init__("old_build_success_wrong_checksum", SUCCESS_OUTCOME)
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")

@@ -48,6 +48,12 @@ def _parse_args() -> argparse.Namespace:
         type=str,
         help="Performs checks for the given scenario.",
     )
+
+    parser.add_argument(
+        "outcome",
+        type=str,
+        help="The outcome of the action execution.",
+    )
     return parser.parse_args()
 
 
@@ -60,6 +66,7 @@ if __name__ == "__main__":
             raise ValueError(f"Scenario '{args.check}' not found.")
         print(f"Verifying integration test outputs for '{s.name}'")
         repo = TestRepository(s.name, REMOTE_PATH, LOCAL_PATH)
+        s.check_outcome(args.outcome)
         s.verify(repo)
     else:
         _prepare()
