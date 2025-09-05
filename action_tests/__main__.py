@@ -46,11 +46,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "outcome",
         type=str,
+        required=False,
         help="The outcome of the action execution.",
     )
     parser.add_argument(
         "--check",
         type=str,
+        required=False,
         help="Performs checks for the given scenario.",
     )
 

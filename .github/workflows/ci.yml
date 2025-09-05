@@ -126,7 +126,7 @@ jobs:
 
       - name: Verify integration test 1
         if: always()
-        run: python -m action_tests ${{ steps.integration-test-1.outcome }} --check old_build_success_no_checksum
+        run: python -m action_tests --check old_build_success_no_checksum ${{ steps.integration-test-1.outcome }}
 
       # Integration test 2
 
@@ -143,7 +143,7 @@ jobs:
 
       - name: Verify integration test 2
         if: always()
-        run: python -m action_tests ${{ steps.integration-test-2.outcome }} --check old_build_success_same_checksum
+        run: python -m action_tests --check old_build_success_same_checksum ${{ steps.integration-test-2.outcome }}
 
       # Integration test 3
 
@@ -160,7 +160,7 @@ jobs:
 
       - name: Verify integration test 3
         if: always()
-        run: python -m action_tests ${{ steps.integration-test-3.outcome }} --check old_build_success_same_checksum_no_pdf
+        run: python -m action_tests --check old_build_success_same_checksum_no_pdf ${{ steps.integration-test-3.outcome }}
 
       # Integration test 4
 
@@ -177,7 +177,7 @@ jobs:
 
       - name: Verify integration test 4
         if: always()
-        run: python -m action_tests ${{ steps.integration-test-4.outcome }} --check old_build_success_wrong_checksum
+        run: python -m action_tests --check old_build_success_wrong_checksum ${{ steps.integration-test-4.outcome }}
 
       # TODO: add more tests
 
