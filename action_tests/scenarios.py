@@ -298,8 +298,8 @@ class OldBuildWorkingSameChecksum(Scenario):
 
 class OldBuildWorkingSameChecksumNoPDF(Scenario):
     """
-    Integration test scenario that checks that even a valid checksum to a
-    missing PDF causes a build.
+    Integration test scenario that checks that even a valid checksum with some
+    PDFs missing does not trigger a rebuild.
     """
 
     def __init__(self) -> None:
@@ -311,19 +311,19 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
 
-        modified_files = [
+        self.assert_no_bot_commit(repo)
+
+        not_existing_files = [
             ["22W", "Ex03", ".checksum"],
             ["22W", "Ex03", "Aufgabe", "Ex03.pdf"],
             ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
             ["22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
             ["22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
-            ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
+            ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
         ]
 
-        self.assert_bot_commit(repo, *modified_files)
-
-        for f in modified_files:
-            self.assert_is_file(repo, *f)
+        for f in not_existing_files:
+            self.assert_is_no_file(repo, *f)
 
 
 class OldBuildWorkingWrongCheckSum(Scenario):
