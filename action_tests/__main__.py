@@ -46,7 +46,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "outcome",
         type=str,
-        required=False,
+        nargs="?",
         help="The outcome of the action execution.",
     )
     parser.add_argument(
