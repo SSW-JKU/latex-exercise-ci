@@ -96,9 +96,9 @@ class Scenario(ABC):
     An abstract integration test scenario.
     """
 
-    def __init__(self, name: str, path: list[str]) -> None:
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.path = Path(".") / "action_tests" / "_files" / Path(*path)
+        self.path = Path(".") / "action_tests" / "_files" / name
 
     def get_changed_files(self, repo: TestRepository) -> list[str]:
         """
@@ -247,17 +247,14 @@ class Scenario(ABC):
 #### OLD BUILD SYSTEM ####
 
 
-class OldBuildWorkingNoChecksum(Scenario):
+class OldBuildSuccessNoChecksum(Scenario):
     """
     Integration test scenario that checks that there is always a rebuild if the
     checksum file does not exist.
     """
 
     def __init__(self) -> None:
-        super().__init__(
-            "old_build_working_no_checksum",
-            ["old_build_system", "working_build_no_checksum"],
-        )
+        super().__init__("old_build_success_no_checksum")
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
@@ -278,17 +275,14 @@ class OldBuildWorkingNoChecksum(Scenario):
             self.assert_is_file(repo, *f)
 
 
-class OldBuildWorkingSameChecksum(Scenario):
+class OldBuildSuccessSameChecksum(Scenario):
     """
     Integration test scenario that checks that there is no build when the
     checksum matches and all PDFs exist.
     """
 
     def __init__(self) -> None:
-        super().__init__(
-            "old_build_working_same_checksum",
-            ["old_build_system", "working_build_same_checksum"],
-        )
+        super().__init__("old_build_success_same_checksum")
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
@@ -296,17 +290,14 @@ class OldBuildWorkingSameChecksum(Scenario):
         self.assert_no_bot_commit(repo)
 
 
-class OldBuildWorkingSameChecksumNoPDF(Scenario):
+class OldBuildSuccessSameChecksumNoPDF(Scenario):
     """
     Integration test scenario that checks that even a valid checksum with some
     PDFs missing does not trigger a rebuild.
     """
 
     def __init__(self) -> None:
-        super().__init__(
-            "old_build_working_same_checksum_no_pdf",
-            ["old_build_system", "working_build_same_checksum_no_pdf"],
-        )
+        super().__init__("old_build_success_same_checksum_no_pdf")
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
@@ -325,17 +316,14 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
             self.assert_is_no_file(repo, *f)
 
 
-class OldBuildWorkingWrongCheckSum(Scenario):
+class OldBuildSuccessWrongCheckSum(Scenario):
     """
     Integration test scenario that checks that an invalid checksum causes a
     rebuild.
     """
 
     def __init__(self) -> None:
-        super().__init__(
-            "old_build_working_wrong_checksum",
-            ["old_build_system", "working_build_wrong_checksum"],
-        )
+        super().__init__("old_build_success_wrong_checksum")
 
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
@@ -359,7 +347,7 @@ class OldBuildWorkingWrongCheckSum(Scenario):
 #### NEW BUILD SYSTEM ####
 
 
-_add_scenario(OldBuildWorkingNoChecksum())
-_add_scenario(OldBuildWorkingSameChecksum())
-_add_scenario(OldBuildWorkingSameChecksumNoPDF())
-_add_scenario(OldBuildWorkingWrongCheckSum())
+_add_scenario(OldBuildSuccessNoChecksum())
+_add_scenario(OldBuildSuccessSameChecksum())
+_add_scenario(OldBuildSuccessSameChecksumNoPDF())
+_add_scenario(OldBuildSuccessWrongCheckSum())
