@@ -118,14 +118,14 @@ jobs:
         if: always()
         with:
           config_file_name: "config.json"
-          working_directory: "/tmp/test-locals/old_build_working_no_checksum/"
+          working_directory: "/tmp/test-locals/old_build_success_no_checksum/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
 
       - name: Verify integration test 1
         if: always()
-        run: python -m action_tests --check old_build_working_no_checksum
+        run: python -m action_tests --check old_build_success_no_checksum
 
       # Integration test 2
 
@@ -134,14 +134,14 @@ jobs:
         if: always()
         with:
           config_file_name: "config.json"
-          working_directory: "/tmp/test-locals/old_build_working_same_checksum/"
+          working_directory: "/tmp/test-locals/old_build_success_same_checksum/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
 
       - name: Verify integration test 2
         if: always()
-        run: python -m action_tests --check old_build_working_same_checksum
+        run: python -m action_tests --check old_build_success_same_checksum
 
       # Integration test 3
 
@@ -150,14 +150,14 @@ jobs:
         if: always()
         with:
           config_file_name: "config.json"
-          working_directory: "/tmp/test-locals/old_build_working_same_checksum_no_pdf/"
+          working_directory: "/tmp/test-locals/old_build_success_same_checksum_no_pdf/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
 
       - name: Verify integration test 3
         if: always()
-        run: python -m action_tests --check old_build_working_same_checksum_no_pdf
+        run: python -m action_tests --check old_build_success_same_checksum_no_pdf
 
       # Integration test 4
 
@@ -166,14 +166,14 @@ jobs:
         if: always()
         with:
           config_file_name: "config.json"
-          working_directory: "/tmp/test-locals/old_build_working_wrong_checksum/"
+          working_directory: "/tmp/test-locals/old_build_success_wrong_checksum/"
           commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
           commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
           texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
 
       - name: Verify integration test 4
         if: always()
-        run: python -m action_tests --check old_build_working_wrong_checksum
+        run: python -m action_tests --check old_build_success_wrong_checksum
 
       # TODO: add more tests
 
