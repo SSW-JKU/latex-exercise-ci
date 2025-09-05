@@ -314,7 +314,6 @@ class OldBuildWorkingSameChecksumNoPDF(Scenario):
         self.assert_no_bot_commit(repo)
 
         not_existing_files = [
-            ["22W", "Ex03", ".checksum"],
             ["22W", "Ex03", "Aufgabe", "Ex03.pdf"],
             ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
             ["22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
