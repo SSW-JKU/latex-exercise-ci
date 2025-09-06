@@ -387,6 +387,8 @@ class OldBuildFailureNewFile(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
+            ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
+            ["22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
             ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
             ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
         ]
@@ -398,9 +400,7 @@ class OldBuildFailureNewFile(Scenario):
         self.assert_files_missing(
             repo,
             ["22W", "Ex03", "Aufgabe", "Ex03.pdf"],
-            ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
             ["22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
-            ["22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
         )
 
 
@@ -417,6 +417,9 @@ class OldBuildFailureNoChecksum(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
+            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
+            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
+            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
             ["22W", "Ex02", ".checksum"],
             ["22W", "Ex02", "Aufgabe", "Ex02.pdf"],
             ["22W", "Ex02", "Aufgabe", "Ex02.build_log"],
@@ -434,11 +437,8 @@ class OldBuildFailureNoChecksum(Scenario):
             repo,
             ["22W", "Ex01", ".checksum"],
             ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
             ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
             ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
         )
 
 
