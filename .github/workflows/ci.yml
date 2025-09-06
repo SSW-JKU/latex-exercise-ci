@@ -195,7 +195,7 @@ jobs:
 
       - name: Verify integration test 5
         if: always()
-        run: python -m action_tests --check old_build_failure_new_file ${{ steps.integration-test-4.outcome }}
+        run: python -m action_tests --check old_build_failure_new_file ${{ steps.integration-test-5.outcome }}
 
       # Integration test 6
 
