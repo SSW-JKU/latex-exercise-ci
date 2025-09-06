@@ -179,6 +179,42 @@ jobs:
         if: always()
         run: python -m action_tests --check old_build_success_wrong_checksum ${{ steps.integration-test-4.outcome }}
 
+      # Integration test 5
+
+      - name: "Integration test 5: Test build failure with new file (old build system)"
+        id: integration-test-5
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_failure_new_file/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 5
+        if: always()
+        run: python -m action_tests --check old_build_failure_new_file ${{ steps.integration-test-4.outcome }}
+
+      # Integration test 6
+
+      - name: "Integration test 6: Test build failure without a checksum (old build system)"
+        id: integration-test-6
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_failure_no_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 6
+        if: always()
+        run: python -m action_tests --check old_build_failure_no_checksum ${{ steps.integration-test-6.outcome }}
+
       # TODO: add more tests
 
   deploy:
