@@ -442,6 +442,29 @@ class OldBuildFailureNoChecksum(Scenario):
         )
 
 
+class OldBuildFailureUpdateFile(Scenario):
+    """
+    Integration test scenario that checks that the checksum file is not updated
+    if a build (partially) fails due to a file update.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("old_build_failure_update_file", FAILURE_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+
+        new_files = [
+            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
+            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
+            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+        ]
+
+        self.assert_bot_commit(repo, *new_files)
+
+        self.assert_files_exist(repo, *new_files)
+
+
 #### NEW BUILD SYSTEM ####
 
 
@@ -451,3 +474,4 @@ _add_scenario(OldBuildSuccessSameChecksumNoPDF())
 _add_scenario(OldBuildSuccessWrongCheckSum())
 _add_scenario(OldBuildFailureNewFile())
 _add_scenario(OldBuildFailureNoChecksum())
+_add_scenario(OldBuildFailureUpdateFile())

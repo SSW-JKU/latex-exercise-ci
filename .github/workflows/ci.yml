@@ -215,6 +215,24 @@ jobs:
         if: always()
         run: python -m action_tests --check old_build_failure_no_checksum ${{ steps.integration-test-6.outcome }}
 
+      # Integration test 7
+
+      - name: "Integration test 7: Test build failure with an updated file (old build system)"
+        id: integration-test-7
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_failure_update_file/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 7
+        if: always()
+        run: python -m action_tests --check old_build_failure_update_file ${{ steps.integration-test-7.outcome }}
+
       # TODO: add more tests
 
   deploy:
