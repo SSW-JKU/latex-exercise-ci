@@ -164,7 +164,7 @@ jobs:
 
       # Integration test 4
 
-      - name: "Integration test 4: Test no build with wrong checksum (old build system)"
+      - name: "Integration test 4: Test successful build with wrong checksum (old build system)"
         id: integration-test-4
         uses: ./
         if: always()
@@ -286,7 +286,7 @@ jobs:
 
       # Integration test 11
 
-      - name: "Integration test 11: Test no build with wrong checksum (new build system)"
+      - name: "Integration test 11: Test successful build with wrong checksum (new build system)"
         id: integration-test-11
         uses: ./
         if: always()
