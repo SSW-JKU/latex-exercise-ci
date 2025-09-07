@@ -143,7 +143,7 @@ def check_and_update_hash(basepath: Path,
         basepath), str(ignore))
     cache, result = on_mismatch()
     if cache:
-        log.info('Function after hash mismatch in path %s resulted in new hash %s', str(
+        log.debug('Function after hash mismatch in path %s resulted in new hash %s', str(
             basepath), str(new_hash))
         cache_dirhash(basepath, new_hash)
     log.debug('Result after hash mismach in path %s is %s',

@@ -416,7 +416,7 @@ class OldBuildFailureNoChecksum(Scenario):
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
 
-        new_files = [
+        modified_files = [
             ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
             ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
             ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
@@ -429,9 +429,9 @@ class OldBuildFailureNoChecksum(Scenario):
             ["22W", "Ex02", "Unterricht", "Ex02_Lernziele.build_log"],
         ]
 
-        self.assert_bot_commit(repo, *new_files)
+        self.assert_bot_commit(repo, *modified_files)
 
-        self.assert_files_exist(repo, *new_files)
+        self.assert_files_exist(repo, *modified_files)
 
         self.assert_files_missing(
             repo,
@@ -606,7 +606,7 @@ class NewBuildFailureNoChecksum(Scenario):
     def verify(self, repo: TestRepository) -> None:
         print(f"Verifying scenario: {self.name}")
 
-        new_files = [
+        modified_files = [
             ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
             ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
             ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
@@ -619,9 +619,9 @@ class NewBuildFailureNoChecksum(Scenario):
             ["25ST", "Ex02", "Unterricht", "Ex02_Lernziele.build_log"],
         ]
 
-        self.assert_bot_commit(repo, *new_files)
+        self.assert_bot_commit(repo, *modified_files)
 
-        self.assert_files_exist(repo, *new_files)
+        self.assert_files_exist(repo, *modified_files)
 
         self.assert_files_missing(
             repo,
