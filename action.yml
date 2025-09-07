@@ -103,7 +103,7 @@ runs:
 
         # Optional. Options used by `git-add`.
         # See https://git-scm.com/docs/git-add#_options
-        add_options: "--ignore-errors"
+        # add_options: "--ignore-errors"
 
         # # Optional. Options used by `git-push`.
         # # See https://git-scm.com/docs/git-push#_options
