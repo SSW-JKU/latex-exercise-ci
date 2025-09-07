@@ -468,6 +468,186 @@ class OldBuildFailureUpdateFile(Scenario):
 #### NEW BUILD SYSTEM ####
 
 
+class NewBuildSuccessNoChecksum(Scenario):
+    """
+    Integration test scenario that checks that there is always a rebuild if the
+    checksum file does not exist.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("new_build_success_no_checksum", SUCCESS_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+
+        new_files = [
+            ["25ST", "Ex01", ".checksum"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01.pdf"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
+            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+        ]
+
+        self.assert_bot_commit(repo, *new_files)
+        self.assert_files_exist(repo, *new_files)
+
+
+class NewBuildSuccessSameChecksum(Scenario):
+    """
+    Integration test scenario that checks that there is no build when the
+    checksum matches and all PDFs exist.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("new_build_success_same_checksum", SUCCESS_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+        self.assert_no_bot_commit(repo)
+
+
+class NewBuildSuccessSameChecksumNoPDF(Scenario):
+    """
+    Integration test scenario that checks that even a valid checksum with some
+    PDFs missing does not trigger a rebuild.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("new_build_success_same_checksum_no_pdf", SUCCESS_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+        self.assert_no_bot_commit(repo)
+
+        self.assert_files_missing(
+            repo,
+            ["25ST", "Ex03", "Aufgabe", "Ex03.pdf"],
+            ["25ST", "Ex03", "Aufgabe", "Ex03.build_log"],
+            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
+            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
+            ["25ST", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
+        )
+
+
+class NewBuildSuccessWrongCheckSum(Scenario):
+    """
+    Integration test scenario that checks that an invalid checksum causes a
+    rebuild.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("new_build_success_wrong_checksum", SUCCESS_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+
+        modified_files = [
+            ["25ST", "Ex04", ".checksum"],
+            ["25ST", "Ex04", "Aufgabe", "Ex04.pdf"],
+            ["25ST", "Ex04", "Aufgabe", "Ex04.build_log"],
+            ["25ST", "Ex04", "Aufgabe", "Ex04_solution.pdf"],
+            ["25ST", "Ex04", "Aufgabe", "Ex04_solution.build_log"],
+            ["25ST", "Ex04", "Unterricht", "Ex04_Lernziele.pdf"],
+            ["25ST", "Ex04", "Unterricht", "Ex04_Lernziele.build_log"],
+        ]
+
+        self.assert_bot_commit(repo, *modified_files)
+        self.assert_files_exist(repo, *modified_files)
+
+
+class NewBuildFailureNewFile(Scenario):
+    """
+    Integration test scenario that checks that the checksum is not updated
+    if the build fails on a new file.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("new_build_failure_new_file", FAILURE_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+
+        modified_files = [
+            ["25ST", "Ex03", "Aufgabe", "Ex03.build_log"],
+            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
+            ["25ST", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
+            ["25ST", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
+        ]
+
+        self.assert_bot_commit(repo, *modified_files)
+
+        self.assert_files_exist(repo, *modified_files)
+
+        self.assert_files_missing(
+            repo,
+            ["25ST", "Ex03", "Aufgabe", "Ex03.pdf"],
+            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
+        )
+
+
+class NewBuildFailureNoChecksum(Scenario):
+    """
+    Integration test scenario that checks that there is no checksum file created
+    if a build (partially) fails and no checksum file existed before.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("new_build_failure_no_checksum", FAILURE_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+
+        new_files = [
+            ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
+            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+            ["25ST", "Ex02", ".checksum"],
+            ["25ST", "Ex02", "Aufgabe", "Ex02.pdf"],
+            ["25ST", "Ex02", "Aufgabe", "Ex02.build_log"],
+            ["25ST", "Ex02", "Aufgabe", "Ex02_solution.pdf"],
+            ["25ST", "Ex02", "Aufgabe", "Ex02_solution.build_log"],
+            ["25ST", "Ex02", "Unterricht", "Ex02_Lernziele.pdf"],
+            ["25ST", "Ex02", "Unterricht", "Ex02_Lernziele.build_log"],
+        ]
+
+        self.assert_bot_commit(repo, *new_files)
+
+        self.assert_files_exist(repo, *new_files)
+
+        self.assert_files_missing(
+            repo,
+            ["25ST", "Ex01", ".checksum"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01.pdf"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
+            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+        )
+
+
+class NewBuildFailureUpdateFile(Scenario):
+    """
+    Integration test scenario that checks that the checksum file is not updated
+    if a build (partially) fails due to a file update.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("new_build_failure_update_file", FAILURE_OUTCOME)
+
+    def verify(self, repo: TestRepository) -> None:
+        print(f"Verifying scenario: {self.name}")
+
+        new_files = [
+            ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
+            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+        ]
+
+        self.assert_bot_commit(repo, *new_files)
+
+        self.assert_files_exist(repo, *new_files)
+
+
 _add_scenario(OldBuildSuccessNoChecksum())
 _add_scenario(OldBuildSuccessSameChecksum())
 _add_scenario(OldBuildSuccessSameChecksumNoPDF())
@@ -475,3 +655,11 @@ _add_scenario(OldBuildSuccessWrongCheckSum())
 _add_scenario(OldBuildFailureNewFile())
 _add_scenario(OldBuildFailureNoChecksum())
 _add_scenario(OldBuildFailureUpdateFile())
+
+_add_scenario(NewBuildSuccessNoChecksum())
+_add_scenario(NewBuildSuccessSameChecksum())
+_add_scenario(NewBuildSuccessSameChecksumNoPDF())
+_add_scenario(NewBuildSuccessWrongCheckSum())
+_add_scenario(NewBuildFailureNewFile())
+_add_scenario(NewBuildFailureNoChecksum())
+_add_scenario(NewBuildFailureUpdateFile())
