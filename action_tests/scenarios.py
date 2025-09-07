@@ -455,17 +455,21 @@ class OldBuildFailureUpdateFile(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
-            ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
             ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
             ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
             ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
         ]
 
-        self.assert_bot_commit(repo, *new_files)
+        deleted_files = [
+            ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
+            ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
+            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+        ]
+
+        self.assert_bot_commit(repo, *new_files, *deleted_files)
 
         self.assert_files_exist(repo, *new_files)
+        self.assert_files_missing(repo, *deleted_files)
 
 
 #### NEW BUILD SYSTEM ####
@@ -641,17 +645,21 @@ class NewBuildFailureUpdateFile(Scenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
-            ["25ST", "Ex01", "Aufgabe", "Ex01.pdf"],
             ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
             ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
             ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
         ]
 
-        self.assert_bot_commit(repo, *new_files)
+        deleted_files = [
+            ["25ST", "Ex01", "Aufgabe", "Ex01.pdf"],
+            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
+            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+        ]
+
+        self.assert_bot_commit(repo, *new_files, *deleted_files)
 
         self.assert_files_exist(repo, *new_files)
+        self.assert_files_missing(repo, *deleted_files)
 
 
 _add_scenario(OldBuildSuccessNoChecksum())
