@@ -158,7 +158,9 @@ def build_exercise(
                                                                  targets.
 
     Returns:
-        (ResultCode) The result code
+        (bool, ResultCode) A tuple where the first entry denotes whether the
+                           exercise has changed and the second entry denotes the
+                           result code
     """
     basepath = config.workdir.joinpath(exercise)
 
