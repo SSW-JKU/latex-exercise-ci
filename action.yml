@@ -49,6 +49,7 @@ runs:
       with:
         cache: "pip"
         python-version: ${{ inputs.python_version }}
+        cache-dependency-path: '**/action_requirements.txt'
 
     - name: Install Python dependencies
       working-directory: ${{ github.action_path }}
