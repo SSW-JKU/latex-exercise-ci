@@ -45,7 +45,7 @@ runs:
       shell: bash
     # install Python
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         cache: "pip"
         python-version: ${{ inputs.python_version }}
