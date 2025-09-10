@@ -195,7 +195,7 @@ class TexCompilationTarget(Generic[R]):
                 git_rollback = ["git", "checkout", "--", path]
                 rm_cmd = ["rm", path]
 
-                cmd = []
+                cmd: list[str] = []
                 if not self.config.options.no_git:
                     cmd += git_rollback
                     cmd += ["||"]

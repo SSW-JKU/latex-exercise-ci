@@ -1,5 +1,6 @@
 name: "Latex Build Action"
 description: "Builds contents and homeworks of the SSW lectures and exercises"
+
 inputs:
   python_version:
     description: "Python version to use"
@@ -26,6 +27,10 @@ inputs:
     description: "Email of the user who commits the changes"
     required: false
     default: latex-exercise-ci-bot@users.noreply.github.com
+  working_directory:
+    description: "The working directory to use"
+    required: false
+    default: ${{ github.workspace }}
 outputs:
   changed-exercises:
     description: "A comma-separated list of exercises that have been changed"
@@ -36,14 +41,15 @@ runs:
     # Create symbolic link for requirements.txt (https://github.com/actions/setup-python/issues/361#issuecomment-2530429607)
     # to work around https://github.com/actions/setup-python/issues/361
     - name: Create symbolic link for requirements.txt
-      run: ln -s ${{ github.action_path }}/requirements.txt
+      run: ln -s ${{ github.action_path }}/requirements.txt action_requirements.txt
       shell: bash
     # install Python
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         cache: "pip"
         python-version: ${{ inputs.python_version }}
+        cache-dependency-path: '**/action_requirements.txt'
 
     - name: Install Python dependencies
       working-directory: ${{ github.action_path }}
@@ -52,6 +58,10 @@ runs:
         python -m pip install --upgrade pip
         pip install --upgrade setuptools
         pip install -r requirements.txt
+
+    - name: Delete requirements file symlink
+      shell: bash
+      run: rm action_requirements.txt
 
     # install TeX live + install required dependencies
     - name: Setup TeX Live
@@ -63,17 +73,19 @@ runs:
     # build all exercise and lecture files according to the script
     - name: Build exercises
       id: build-exercise-files
-      run: ${{ github.action_path }}/run_action.sh
+      run: ${{ github.action_path }}/entrypoint.sh
       shell: bash
       env:
         CONFIG_FILE: ${{ inputs.config_file_name }}
         GITHUB_ACTION_PATH: ${{ github.action_path }}
+        WORKING_DIRECTORY: ${{ inputs.working_directory }}
 
     # commit & push all changes (i.e. all generated PDFs, build logs)
     - uses: stefanzweifel/git-auto-commit-action@v4
       if: always()
       with:
         commit_message: Build TEX files
+        repository: ${{ inputs.working_directory }}
 
         # Optional glob pattern of files which should be added to the commit
         # Defaults to all (.)
@@ -92,7 +104,7 @@ runs:
 
         # Optional. Options used by `git-add`.
         # See https://git-scm.com/docs/git-add#_options
-        # add_options: "-u"
+        # add_options: "--ignore-errors"
 
         # # Optional. Options used by `git-push`.
         # # See https://git-scm.com/docs/git-push#_options

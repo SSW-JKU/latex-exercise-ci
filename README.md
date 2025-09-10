@@ -30,6 +30,8 @@ The builds are performed in a prepared CI environment that installs (parts of) [
 As preparing this environment is costly (in terms of CI build time), the action tries to cache as much as possible from this process (e.g., the TeX Live packages) and also tries to prevent excessive rebuilds of the materials.
 Therefore, the build process generates a hash of its included files per _exercise_ and also pushes it to the repo (local `.checksum` files in the `<exercise_nr>` directories). If in a subsequent invocation of the build process (another commit) the given files of the exercises _have not_ changed, the checksum should match and the exercise is skipped during the build process. Hence, the `.checksum` files should never be manually changed, unless you want to force a rebuild (e.g., by deleting the `.checksum` file).
 
+**Note:**: A correct checksum without proper PDFs *does not* trigger a rebuild. Since checksum files are only generated once the PDFs are successfully built, this should not occur without manual intervention.
+
 ## Configuration
 
 The action is customizable via the following inputs:

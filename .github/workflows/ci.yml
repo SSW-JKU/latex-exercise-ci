@@ -2,6 +2,40 @@ name: Build CI
 
 on: push
 
+env:
+  INTEGRATION_TEST_COMMIT_NAME: Integration Test Build[bot]
+  INTEGRATION_TEST_COMMIT_EMAIL: integration-test-bot@users.noreply.github.com
+  INTEGRATION_TEST_PACKAGES: >-
+    scheme-basic
+    cleveref
+    hyperref
+    latexmk
+    eurosym
+    xsim
+    babel-german
+    hyphen-german
+    csquotes
+    csquotes-de
+    wrapfig
+    tcolorbox
+    paracol
+    mdframed
+    koma-script
+    pgf
+    environ
+    booktabs
+    enumitem
+    listings
+    soul
+    caption
+    fontawesome5
+    zref
+    needspace
+    tikzfill
+    pdfcol
+    listingsutf8
+    xstring
+
 jobs:
   lint:
     name: "Lint+typecheck"
@@ -11,7 +45,7 @@ jobs:
         python-version: ["3.13"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           cache: "pip"
           python-version: ${{ matrix.python-version }}
@@ -25,8 +59,8 @@ jobs:
       - name: Type check
         run: make typecheck
 
-  test:
-    name: "Test"
+  unit-test:
+    name: "Unit Test"
     runs-on: ubuntu-latest
     needs: ["lint"]
     strategy:
@@ -35,7 +69,7 @@ jobs:
         texlive-version: ["2024", "2025"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           cache: "pip" # caching pip dependencies
           python-version: ${{ matrix.python-version }}
@@ -54,9 +88,276 @@ jobs:
       - name: Run unittests
         run: make test
 
+  integration-test:
+    name: "Integration Test"
+    runs-on: ubuntu-latest
+    needs: ["unit-test"]
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+        texlive-version: ["2024", "2025"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          cache: "pip" # caching pip dependencies
+          python-version: ${{ matrix.python-version }}
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade setuptools
+          pip install -r requirements.txt
+
+      # Integration test 1
+
+      - name: Prepare repositories and test files
+        run: python -m action_tests
+
+      - name: "Integration test 1: Test successful build without existing checksum (old build system)"
+        id: integration-test-1
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_success_no_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 1
+        if: always()
+        run: python -m action_tests --check old_build_success_no_checksum ${{ steps.integration-test-1.outcome }}
+
+      # Integration test 2
+
+      - name: "Integration test 2: Test no build with same checksum and existing PDFs (old build system)"
+        id: integration-test-2
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_success_same_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 2
+        if: always()
+        run: python -m action_tests --check old_build_success_same_checksum ${{ steps.integration-test-2.outcome }}
+
+      # Integration test 3
+
+      - name: "Integration test 3: Test no build with same checksum but no existing PDF (old build system)"
+        id: integration-test-3
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_success_same_checksum_no_pdf/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 3
+        if: always()
+        run: python -m action_tests --check old_build_success_same_checksum_no_pdf ${{ steps.integration-test-3.outcome }}
+
+      # Integration test 4
+
+      - name: "Integration test 4: Test successful build with wrong checksum (old build system)"
+        id: integration-test-4
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_success_wrong_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 4
+        if: always()
+        run: python -m action_tests --check old_build_success_wrong_checksum ${{ steps.integration-test-4.outcome }}
+
+      # Integration test 5
+
+      - name: "Integration test 5: Test build failure with new file (old build system)"
+        id: integration-test-5
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_failure_new_file/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 5
+        if: always()
+        run: python -m action_tests --check old_build_failure_new_file ${{ steps.integration-test-5.outcome }}
+
+      # Integration test 6
+
+      - name: "Integration test 6: Test build failure without a checksum (old build system)"
+        id: integration-test-6
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_failure_no_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 6
+        if: always()
+        run: python -m action_tests --check old_build_failure_no_checksum ${{ steps.integration-test-6.outcome }}
+
+      # Integration test 7
+
+      - name: "Integration test 7: Test build failure with an updated file (old build system)"
+        id: integration-test-7
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/old_build_failure_update_file/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 7
+        if: always()
+        run: python -m action_tests --check old_build_failure_update_file ${{ steps.integration-test-7.outcome }}
+
+      # Integration test 8
+
+      - name: "Integration test 8: Test successful build without existing checksum (new build system)"
+        id: integration-test-8
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/new_build_success_no_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 8
+        if: always()
+        run: python -m action_tests --check new_build_success_no_checksum ${{ steps.integration-test-8.outcome }}
+
+      # Integration test 9
+
+      - name: "Integration test 9: Test no build with same checksum and existing PDFs (new build system)"
+        id: integration-test-9
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/new_build_success_same_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 9
+        if: always()
+        run: python -m action_tests --check new_build_success_same_checksum ${{ steps.integration-test-9.outcome }}
+
+      # Integration test 10
+
+      - name: "Integration test 10: Test no build with same checksum but no existing PDF (new build system)"
+        id: integration-test-10
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/new_build_success_same_checksum_no_pdf/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 10
+        if: always()
+        run: python -m action_tests --check new_build_success_same_checksum_no_pdf ${{ steps.integration-test-10.outcome }}
+
+      # Integration test 11
+
+      - name: "Integration test 11: Test successful build with wrong checksum (new build system)"
+        id: integration-test-11
+        uses: ./
+        if: always()
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/new_build_success_wrong_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 11
+        if: always()
+        run: python -m action_tests --check new_build_success_wrong_checksum ${{ steps.integration-test-11.outcome }}
+
+      # Integration test 12
+
+      - name: "Integration test 12: Test build failure with new file (new build system)"
+        id: integration-test-12
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/new_build_failure_new_file/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 12
+        if: always()
+        run: python -m action_tests --check new_build_failure_new_file ${{ steps.integration-test-12.outcome }}
+
+      # Integration test 13
+
+      - name: "Integration test 13: Test build failure without a checksum (new build system)"
+        id: integration-test-13
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/new_build_failure_no_checksum/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 13
+        if: always()
+        run: python -m action_tests --check new_build_failure_no_checksum ${{ steps.integration-test-13.outcome }}
+
+      # Integration test 14
+
+      - name: "Integration test 14: Test build failure with an updated file (new build system)"
+        id: integration-test-14
+        uses: ./
+        if: always()
+        continue-on-error: true
+        with:
+          config_file_name: "config.json"
+          working_directory: "/tmp/test-locals/new_build_failure_update_file/"
+          commit_user_name: ${{ env.INTEGRATION_TEST_COMMIT_NAME }}
+          commit_user_email: ${{ env.INTEGRATION_TEST_COMMIT_EMAIL }}
+          texlive_packages: ${{ env.INTEGRATION_TEST_PACKAGES }}
+
+      - name: Verify integration test 14
+        if: always()
+        run: python -m action_tests --check new_build_failure_update_file ${{ steps.integration-test-14.outcome }}
+
   deploy:
     name: "Create release"
-    needs: ["test"]
+    needs: ["unit-test", "integration-test"]
     if: "${{ startsWith(github.ref, 'refs/tags/') }}"
     runs-on: ubuntu-latest
     steps:

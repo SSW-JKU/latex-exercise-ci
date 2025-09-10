@@ -5,9 +5,9 @@ import unittest
 from latex_build_action.compilation import TexCompilationTarget, latexmk_compile
 from latex_build_action.config import Config
 from ._test_utils import (
+    HasAssertions,
     create_default_config,
     create_default_json,
-    dont_call,
     FileTestCaseMixin,
     RealFileSystemTestCase,
     VALID_TEX_CONTENT,
@@ -15,7 +15,14 @@ from ._test_utils import (
 )
 
 
-class TestTexCompilationTarget(FileTestCaseMixin, unittest.TestCase):
+def _should_not_be_called(a: Path, b: str, c: str, d: Path) -> None:
+    """
+    Asserts that this callback is never actually invoked.
+    """
+    raise AssertionError("should not be called")
+
+
+class TestTexCompilationTarget(FileTestCaseMixin, HasAssertions, unittest.TestCase):
     # pylint: disable=missing-class-docstring
 
     def test_compile(self) -> None:
@@ -55,7 +62,7 @@ class TestTexCompilationTarget(FileTestCaseMixin, unittest.TestCase):
             "testdir",
             "texfile.tex",
             "no-args",
-            dont_call,
+            _should_not_be_called,
             "_testfile",
         )
 
@@ -68,7 +75,7 @@ class TestTexCompilationTarget(FileTestCaseMixin, unittest.TestCase):
             "testdir",
             "texfile.tex",
             "no-args",
-            dont_call,
+            _should_not_be_called,
             "_testfile",
         )
 
@@ -98,7 +105,7 @@ class TestTexCompilationRollback(RealFileSystemTestCase):
             "testsubdir",
             "texfile.tex",
             "no-args",
-            dont_call,
+            _should_not_be_called,
             "_testfile",
         )
 

@@ -158,7 +158,9 @@ def build_exercise(
                                                                  targets.
 
     Returns:
-        (ResultCode) The result code
+        (bool, ResultCode) A tuple where the first entry denotes whether the
+                           exercise has changed and the second entry denotes the
+                           result code
     """
     basepath = config.workdir.joinpath(exercise)
 
@@ -184,5 +186,7 @@ def build_exercise(
             return (False, 0)
         return (True, result)
 
-    log.warning("%s: Exercise directory does not exist", exercise)
+    log.warning(
+        "%s: Exercise directory (%s) does not exist", exercise, str(basepath.absolute())
+    )
     return (False, 0)
