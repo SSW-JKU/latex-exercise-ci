@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-03-04
+
+### Added
+
+- [#18](https://github.com/SSW-JKU/latex-exercise-ci/issues/18) Added CRON job that runs integration tests on a weekly basis
+
+### Updated
+
+- Update TeX Live dependency to 2026
+
 ## [1.3.0] - 2025-09-10
 
 ### Fixed
@@ -56,8 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   standardized open source project CHANGELOG.
 - README with input documentation
 
-[unreleased]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.3.0...HEAD
-[1.3.1]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.2.1...v1.3.0
+[unreleased]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.1.0...v1.1.1
