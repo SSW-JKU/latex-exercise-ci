@@ -1,6 +1,9 @@
 name: Build CI
 
-on: push
+on:
+  push:
+  schedule:
+    - cron: '0 9 1 * *' # Run on the first day of every month at 9:00 UTC
 
 env:
   INTEGRATION_TEST_COMMIT_NAME: Integration Test Build[bot]
