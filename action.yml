@@ -9,7 +9,7 @@ inputs:
   texlive_version:
     description: "TeX Live version to use"
     required: false
-    default: "2024"
+    default: "2026"
   texlive_packages:
     description: "TeX Live packages to install"
     required: false

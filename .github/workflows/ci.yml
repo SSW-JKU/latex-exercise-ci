@@ -44,7 +44,7 @@ jobs:
       matrix:
         python-version: ["3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           cache: "pip"
@@ -66,7 +66,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.13"]
-        texlive-version: ["2024", "2025"]
+        texlive-version: ["2026"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6
@@ -95,7 +95,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.13"]
-        texlive-version: ["2024", "2025"]
+        texlive-version: ["2026"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6

@@ -40,7 +40,7 @@ The action is customizable via the following inputs:
 
   Specifies the Python version used to perform the build task.
 
-- `texlive_version` (type: `string`, default: `"2024"`)
+- `texlive_version` (type: `string`, default: `"2026"`)
 
   Specifies the TeX Live version that is used for creating the PDFs.
 
