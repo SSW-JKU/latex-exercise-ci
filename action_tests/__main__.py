@@ -11,7 +11,7 @@ import shutil
 import argparse
 
 from .test_repository import TestRepository, git, REMOTE_PATH, LOCAL_PATH
-from .scenarios import get_scenario, scenarios
+from .scenarios import SCENARIOS
 
 
 def _check_git_installed() -> None:
@@ -25,7 +25,7 @@ def _check_git_installed() -> None:
 def _prepare() -> None:
     print("Setting up repositories and files")
 
-    for name, scenario in scenarios():
+    for name, scenario in SCENARIOS.scenarios():
         print("-- Setting up scenario:", name)
         test_repo = TestRepository(name, REMOTE_PATH, LOCAL_PATH)
         test_repo.initialize_repo()
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     _check_git_installed()
     args = _parse_args()
     if args.check:
-        s = get_scenario(args.check)
+        s = SCENARIOS.get_scenario(args.check)
         if s is None:
             raise ValueError(f"Scenario '{args.check}' not found.")
         print(f"Verifying integration test outputs for '{s.name}'")
