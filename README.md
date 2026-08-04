@@ -102,3 +102,31 @@ The build process typically continues over all exercises even if an individual b
 If a build fails, changes to the directory (e.g., generated PDFs) are rolled back and the `.checksum` naturally remains unchanged.
 
 Even if some builds succeed, the build bot will still push changes; however, the task as a whole will be reported as a failure.
+
+## Development
+
+### Pre-Commit Checks
+
+This repository uses [pre-commit](https://pre-commit.com/) to automatically check and format files before each commit.
+
+#### Available Hooks
+* **lint** (`make lint`): Lints Python source files
+* **typecheck** (`make typecheck`): Performs static type checking on Python source files
+* **conventional commits**: Enforces [conventional commit](https://www.conventionalcommits.org/) messages.
+
+#### Setup
+
+1. **Install `pre-commit`**:
+   ```bash
+   pip install pre-commit
+   ```
+
+2. **Install hooks**
+   ```bash
+   pre-commit install
+   ```
+
+3. (optionally) **Run on all files**
+   ```bash
+   pre-commit run --all-files
+   ```
