@@ -38,8 +38,8 @@ env:
     xstring
 
 jobs:
-  lint:
-    name: "Lint+typecheck"
+  pre-commit:
+    name: "Pre-commit (lint + format + typecheck)"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,15 +55,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade setuptools
           pip install -r requirements.txt
-      - name: Lint
-        run: make lint
-      - name: Type check
-        run: make typecheck
+      - uses: pre-commit/action@v3.0.1
 
   unit-test:
     name: "Unit Test"
     runs-on: ubuntu-latest
-    needs: ["lint"]
+    needs: ["pre-commit"]
     strategy:
       matrix:
         python-version: ["3.13"]
@@ -87,7 +84,7 @@ jobs:
             scheme-basic
             latexmk
       - name: Run unittests
-        run: make test
+        run: pytest
 
   integration-test:
     name: "Integration Test"
