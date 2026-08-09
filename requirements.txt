@@ -16,7 +16,7 @@ pydocstyle==6.3.0
 pyfakefs==5.2.4
 pyflakes==3.2.0
 pylint==3.3.5
-pytest==8.3.5
+pytest==9.0.3
 scantree==0.0.4
 setuptools==83.0.0
 six==1.16.0
