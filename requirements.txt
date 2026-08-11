@@ -15,7 +15,7 @@ platformdirs==3.11.0
 pluggy==1.5.0
 pycodestyle==2.12.1
 pydocstyle==6.3.0
-pyfakefs==5.2.4
+pyfakefs==6.2.0
 pyflakes==3.2.0
 Pygments==2.20.0
 pytest==9.0.3
