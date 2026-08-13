@@ -32,4 +32,7 @@ check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = ["-v"]
+addopts = ["-v", "--cov=latex_build_action", "--cov-branch"]
+
+[tool.coverage.report]
+fail_under = 95
