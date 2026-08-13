@@ -1,32 +1,26 @@
-# pylint: disable=missing-module-docstring
+#!/usr/bin/env python
 
-from argparse import Namespace
 import unittest
-
+from argparse import Namespace
 from pathlib import Path
+
+import pytest
+
 from latex_build_action.config import Config
+
 from ._test_utils import create_default_json, create_temp_json
 
 
 class TestConfig(unittest.TestCase):
-    # pylint: disable=missing-class-docstring
-
     def test_parse_config(self) -> None:
-        # pylint: disable=missing-function-docstring
         config = Config(Namespace(config=create_default_json(), workdir=Path()))
-        self.assertEqual(config.workdir, Path("25WS"))
-        self.assertEqual(config.active_semester, "25WS")
-        self.assertEqual(config.exercises, ["UE01", "UE02", "UE03"])
-        self.assertEqual(config.exercises_entry_point, "ExerciseEntryPoint")
-        self.assertEqual(config.lesson_entry_point, "LessonEntryPoint")
+        assert config.workdir == Path("25WS")
+        assert config.active_semester == 25
+        assert config.exercises == ["UE01", "UE02", "UE03"]
+        assert config.exercises_entry_point == "ExerciseEntryPoint"
+        assert config.lesson_entry_point == "LessonEntryPoint"
 
-    def test_determine_semester_valid(self) -> None:
-        # pylint: disable=missing-function-docstring
-        config = Config(Namespace(config=create_default_json(), workdir=Path()))
-        self.assertEqual(25, config.determine_semester())
-
-    def test_determine_semester_invalid(self) -> None:
-        # pylint: disable=missing-function-docstring
+    def test_active_semester_invalid(self) -> None:
         invalid_config_json = create_temp_json(
             activeSemester="3WS",
             exercises=[],
@@ -36,8 +30,8 @@ class TestConfig(unittest.TestCase):
             },
         )
 
-        config = Config(Namespace(config=invalid_config_json, workdir=Path()))
-        self.assertRaises(ValueError, config.determine_semester)
+        with pytest.raises(ValueError):  # noqa: PT011
+            Config(Namespace(config=invalid_config_json, workdir=Path()))
 
 
 if __name__ == "__main__":
