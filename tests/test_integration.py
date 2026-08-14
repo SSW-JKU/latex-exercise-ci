@@ -8,7 +8,7 @@ import unittest
 from collections.abc import Iterable
 from pathlib import Path
 
-from ._test_utils import RealFileSystemTestCase, create_temp_json
+from ._test_utils import RealFileSystemTest, create_temp_json
 
 log = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def run_build(
     return result
 
 
-class TestBuildExerciseFiles(RealFileSystemTestCase):
+class TestBuildExerciseFiles(RealFileSystemTest):
     def test_initial_compilation_success(self) -> None:
 
         # create exercise folders

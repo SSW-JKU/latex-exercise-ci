@@ -4,14 +4,11 @@
 
 import json
 import shutil
-import unittest
 from argparse import Namespace
 from collections.abc import Iterable
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, cast
-
-from pyfakefs import fake_filesystem_unittest
 
 from latex_build_action.config import Config
 
@@ -108,75 +105,71 @@ This is just a faulty test document.
 """
 
 
-class FileTestCaseMixin:
-    """Test mixin that uses `pyfakefs` to enable tests with a fake file system."""
+def file(path: Path, content: str) -> Path:
+    """Utility function for creating files.
 
-    def file(self, path: Path, content: str) -> Path:
-        """Utility function for creating files.
+    Args:
+        path (Path) : The path of the target file.
+        content (str) : The contents that should be written.
 
-        Args:
-            path (Path) : The path of the target file.
-            content (str) : The contents that should be written.
+    Returns:
+        The path to the written file.
 
-        Returns:
-            The path to the written file.
-
-        """
-        with path.open("w", encoding="UTF-8") as f:
-            f.write(content)
-        return path
-
-    def file_with_parents(self, path: Path, content: str) -> Path:
-        """Utility function for creating files including their parent directories.
-
-        Args:
-            path (Path) : The path of the target file.
-            content (str) : The contents that should be written.
-
-        Returns:
-            The path to the written file.
-
-        """
-        path.parent.mkdir(parents=True, exist_ok=True)
-
-        return self.file(path, content)
-
-    def assert_same_path(
-        self,
-        path_a: Path | Iterable[Path],
-        path_b: Path | Iterable[Path],
-    ) -> None:
-        """Helper assertion that allows comparison of `pathlib.Path` objects.
-        This is useful in `FakeFileSystemTestCase`s, as direct instance
-        comparisons of `Path` objects may fail there.
-        """
-        if isinstance(path_a, Path):
-            assert isinstance(path_b, Path)
-            assert str(path_a) == str(path_b)
-        else:
-            assert isinstance(path_a, list)
-            assert isinstance(path_b, list)
-            assert [str(p) for p in path_a] == [str(p) for p in cast("Iterable[Path]", path_b)]
+    """
+    with path.open("w", encoding="UTF-8") as f:
+        f.write(content)
+    return path
 
 
-class FakeFileSystemTestCase(FileTestCaseMixin, fake_filesystem_unittest.TestCase):
-    """Unit test base class that allows tests using a fake file system."""
+def file_with_parents(path: Path, content: str) -> Path:
+    """Utility function for creating files including their parent directories.
 
-    def setUp(self) -> None:
-        """Sets up the fake file system and calls the file system setup function."""
-        self.setUpPyfakefs()
-        self.create_file_structure()
+    Args:
+        path (Path) : The path of the target file.
+        content (str) : The contents that should be written.
 
-    def create_file_structure(self) -> None:
-        """Template function that should create the necessary file structure
-        for the test.
-        """
+    Returns:
+        The path to the written file.
+
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    return file(path, content)
 
 
-class RealFileSystemTestCase(FileTestCaseMixin, unittest.TestCase):
+def assert_same_path(
+    path_a: Path | Iterable[Path],
+    path_b: Path | Iterable[Path],
+) -> None:
+    """Helper assertion that allows comparison of `pathlib.Path` objects.
+    This is useful in `FakeFileSystemTestCase`s, as direct instance
+    comparisons of `Path` objects may fail there.
+    """
+    if isinstance(path_a, Path):
+        assert isinstance(path_b, Path)
+        assert str(path_a) == str(path_b)
+    else:
+        assert isinstance(path_a, list)
+        assert isinstance(path_b, list)
+        assert [str(p) for p in path_a] == [str(p) for p in cast("Iterable[Path]", path_b)]
+
+
+class RealFileSystemTest:
+    """
+    Base test class that creates a temporary test directory for each test case
+    and removes it afterwards.
+    """
+
     """Constant that determines whether the test directory should be removed after each test case."""
-
     DEBUG = False
+
+    def setup_method(self) -> None:
+        self.testdir = Path("testdir")
+        self.testdir.mkdir()
+
+    def teardown_method(self) -> None:
+        if not self.DEBUG:
+            shutil.rmtree(self.testdir)
 
     def subdir(self, *subdir: str) -> Path:
         """Helper function that registers a subdirectory within the
@@ -190,16 +183,6 @@ class RealFileSystemTestCase(FileTestCaseMixin, unittest.TestCase):
 
         """
         return self.testdir.joinpath(*subdir)
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.testdir = Path("testdir")
-        self.testdir.mkdir()
-
-    def tearDown(self) -> None:
-        if not self.DEBUG:
-            shutil.rmtree(self.testdir)
-        super().tearDown()
 
     def generate_tex_files(self, *paths: Path, semester: str = "25WS", valid: bool = True) -> None:
         """Helper function that generates TeX files in the given paths.
@@ -215,7 +198,7 @@ class RealFileSystemTestCase(FileTestCaseMixin, unittest.TestCase):
         content = VALID_TEX_CONTENT if valid else INVALID_TEX_CONTENT
         sem_path = self.testdir.joinpath(semester)
         for path in paths:
-            self.file_with_parents(sem_path.joinpath(path), content)
+            file_with_parents(sem_path.joinpath(path), content)
 
     def checksum(self, *path: str) -> str:
         """Helper function that reads the directory hash from the corresponding

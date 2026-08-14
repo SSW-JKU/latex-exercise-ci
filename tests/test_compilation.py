@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import unittest
 from argparse import Namespace
 from pathlib import Path
 
@@ -12,10 +11,11 @@ from latex_build_action.config import Config
 from ._test_utils import (
     INVALID_TEX_CONTENT,
     VALID_TEX_CONTENT,
-    FileTestCaseMixin,
-    RealFileSystemTestCase,
+    RealFileSystemTest,
+    assert_same_path,
     create_default_config,
     create_default_json,
+    file_with_parents,
 )
 
 
@@ -25,7 +25,7 @@ def _should_not_be_called(a: Path, b: str, c: str, d: Path) -> None:  # noqa: AR
     raise AssertionError(msg)
 
 
-class TestTexCompilationTarget(FileTestCaseMixin, unittest.TestCase):
+class TestTexCompilationTarget(RealFileSystemTest):
     def test_compile(self) -> None:
         was_called = "was-called"
 
@@ -33,10 +33,10 @@ class TestTexCompilationTarget(FileTestCaseMixin, unittest.TestCase):
         def compile_action(file_path: Path, output_name: str, latexmk_args: str, logfile_path: Path) -> str:
             basepath = Path().joinpath("25WS").joinpath("UE01").joinpath("testdir")
 
-            self.assert_same_path(file_path, basepath.joinpath("texfile.tex"))
+            assert_same_path(file_path, basepath.joinpath("texfile.tex"))
             assert output_name == "UE01_testfile"
             assert latexmk_args == "no-args"
-            self.assert_same_path(logfile_path, basepath.joinpath("UE01_testfile.build_log"))
+            assert_same_path(logfile_path, basepath.joinpath("UE01_testfile.build_log"))
             return was_called
 
         target = TexCompilationTarget(
@@ -75,7 +75,7 @@ class TestTexCompilationTarget(FileTestCaseMixin, unittest.TestCase):
 
         file_names = list(target.generated_files("UE02"))
 
-        self.assert_same_path(
+        assert_same_path(
             file_names,
             [
                 Path("25WS", "UE02", "testdir", "UE02_testfile.pdf"),
@@ -84,7 +84,7 @@ class TestTexCompilationTarget(FileTestCaseMixin, unittest.TestCase):
         )
 
 
-class TestTexCompilationRollback(RealFileSystemTestCase):
+class TestTexCompilationRollback(RealFileSystemTest):
     def test_rollback(self) -> None:
 
         target = TexCompilationTarget[None](
@@ -96,7 +96,7 @@ class TestTexCompilationRollback(RealFileSystemTestCase):
             "_testfile",
         )
 
-        self.file_with_parents(
+        file_with_parents(
             self.testdir.joinpath("25WS", "UE01", "testsubdir", "UE01_testfile.pdf"),
             "mycontent",
         )
@@ -105,14 +105,14 @@ class TestTexCompilationRollback(RealFileSystemTestCase):
         assert not self.testdir.joinpath("25WS", "UE01", "testsubdir", "UE01_testfile.pdf").is_file()
 
 
-class TestTexCompilation(RealFileSystemTestCase):
+class TestTexCompilation(RealFileSystemTest):
     def test_latexmk_compile_success(self) -> None:
 
         texfiles = self.subdir("texfiles")
         texpath = texfiles.joinpath("texfile.tex")
         logpath = texfiles.joinpath("texfile.log")
 
-        self.file_with_parents(texpath, VALID_TEX_CONTENT)
+        file_with_parents(texpath, VALID_TEX_CONTENT)
 
         res = latexmk_compile(texpath, "TexFile", r'"\input{%S}"', logpath)
         assert logpath.is_file()
@@ -130,7 +130,7 @@ class TestTexCompilation(RealFileSystemTestCase):
         texpath = texfiles.joinpath("texfile.tex")
         logpath = texfiles.joinpath("texfile.log")
 
-        self.file_with_parents(texpath, INVALID_TEX_CONTENT)
+        file_with_parents(texpath, INVALID_TEX_CONTENT)
 
         res = latexmk_compile(texpath, "TexFile", r'"\input{%S}"', logpath)
         assert logpath.is_file()
@@ -138,7 +138,3 @@ class TestTexCompilation(RealFileSystemTestCase):
         assert res.returncode != 0
 
         assert not Path("testdir", "texfiles", "TexFile.pdf").exists()
-
-
-if __name__ == "__main__":
-    unittest.main()
