@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
+from pytest_mock import MockerFixture
 
 from latex_build_action.hashing import (
     cache_dirhash,
@@ -15,11 +17,7 @@ from latex_build_action.hashing import (
 
 from ._test_utils import file
 
-
-def _should_not_be_called[R](_: R | None = None) -> tuple[bool, R]:
-    """Asserts that this callback is never actually invoked."""
-    msg = "should not be called"
-    raise AssertionError(msg)
+type Callback[R] = Callable[[], tuple[bool, R]]
 
 
 @pytest.fixture
@@ -125,18 +123,15 @@ def test_check_dirhash_no_hash_file() -> None:
 
 
 @pytest.mark.usefixtures("setup_filesystem")
-def test_check_and_update_hash_hash_changed() -> None:
+def test_check_and_update_hash_hash_changed(mocker: MockerFixture) -> None:
     old_hash = hash_directory(Path("testdir"))
     file(Path("testdir", ".checksum"), old_hash)
     file(Path("testdir", "lol"), "lol")
 
-    proof: list[str] = []
+    callback = mocker.stub(name="_should_be_called")
+    callback.return_value = (True, "success")
 
-    def must_be_called() -> tuple[bool, str]:
-        proof.append("success")
-        return True, "success"
-
-    result = check_and_update_hash(Path("testdir"), must_be_called)
+    result = check_and_update_hash(Path("testdir"), callback)
 
     with Path("testdir", ".checksum").open(encoding="UTF-8") as checksum:
         new_hash = hash_directory(Path("testdir"))
@@ -144,44 +139,41 @@ def test_check_and_update_hash_hash_changed() -> None:
         assert checksum.read() == new_hash
 
         assert result == "success"
-        assert proof == ["success"]
+        callback.assert_called_once_with()
 
 
 @pytest.mark.usefixtures("setup_filesystem")
-def test_check_and_update_hash_hash_changed_no_caching() -> None:
+def test_check_and_update_hash_hash_changed_no_caching(mocker: MockerFixture) -> None:
     old_hash = hash_directory(Path("testdir"))
     file(Path("testdir", ".checksum"), old_hash)
 
     file(Path("testdir", "lol"), "lol")
 
-    proof: list[str] = []
+    callback = mocker.stub(name="_should_be_called")
+    callback.return_value = (False, "success")
 
-    def must_be_called() -> tuple[bool, str]:
-        proof.append("success")
-        return False, "success"
-
-    result = check_and_update_hash(Path("testdir"), must_be_called)
+    result = check_and_update_hash(Path("testdir"), callback)
 
     with Path("testdir", ".checksum").open(encoding="UTF-8") as checksum:
         assert checksum.read() == old_hash
 
         assert result == "success"
-        assert proof == ["success"]
+        callback.assert_called_once_with()
 
 
 @pytest.mark.usefixtures("setup_filesystem")
-def test_check_and_update_hash_no_change() -> None:
+def test_check_and_update_hash_no_change(stub_callback: Callback[str]) -> None:
     file(Path("testdir", ".checksum"), hash_directory(Path("testdir")))
 
-    result = check_and_update_hash(Path("testdir"), _should_not_be_called)
+    result = check_and_update_hash(Path("testdir"), stub_callback)
 
     assert result is None
 
 
 @pytest.mark.usefixtures("setup_filesystem")
-def test_check_and_update_hash_dont_overwrite() -> None:
+def test_check_and_update_hash_dont_overwrite(stub_callback: Callback[str]) -> None:
     file(Path("testdir", ".checksum"), hash_directory(Path("testdir")))
 
-    result = check_and_update_hash(Path("testdir"), _should_not_be_called)
+    result = check_and_update_hash(Path("testdir"), stub_callback)
 
     assert result is None

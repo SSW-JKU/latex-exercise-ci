@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from argparse import Namespace
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -18,11 +19,7 @@ from ._test_utils import (
     file_with_parents,
 )
 
-
-def _should_not_be_called(a: Path, b: str, c: str, d: Path) -> None:  # noqa: ARG001
-    """Asserts that this callback is never actually invoked."""
-    msg = "should not be called"
-    raise AssertionError(msg)
+type Callback = Callable[[Path, str, str, Path], None]
 
 
 class TestTexCompilationTarget(RealFileSystemTest):
@@ -50,26 +47,26 @@ class TestTexCompilationTarget(RealFileSystemTest):
 
         assert target.compile("UE01") is was_called
 
-    def test_compile_invalid_exercise(self) -> None:
+    def test_compile_invalid_exercise(self, stub_callback: Callback) -> None:
         target = TexCompilationTarget[None](
             create_default_config(),
             "testdir",
             "texfile.tex",
             "no-args",
-            _should_not_be_called,
+            stub_callback,
             "_testfile",
         )
 
         with pytest.raises(ValueError):  # noqa: PT011
             target.compile("custom-exercise")
 
-    def test_generated_files(self) -> None:
+    def test_generated_files(self, stub_callback: Callback) -> None:
         target = TexCompilationTarget[None](
             create_default_config(),
             "testdir",
             "texfile.tex",
             "no-args",
-            _should_not_be_called,
+            stub_callback,
             "_testfile",
         )
 
@@ -85,14 +82,13 @@ class TestTexCompilationTarget(RealFileSystemTest):
 
 
 class TestTexCompilationRollback(RealFileSystemTest):
-    def test_rollback(self) -> None:
-
+    def test_rollback(self, stub_callback: Callback) -> None:
         target = TexCompilationTarget[None](
             Config(Namespace(config=create_default_json(), workdir=self.testdir, no_git=True)),
             "testsubdir",
             "texfile.tex",
             "no-args",
-            _should_not_be_called,
+            stub_callback,
             "_testfile",
         )
 
