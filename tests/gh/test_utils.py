@@ -27,8 +27,8 @@ def test_github_action_output_invalid_output_var(fs: FakeFilesystem, mocker: Moc
     getenv = mocker.patch("os.getenv")
     getenv.return_value = GH_OUTPUT
 
-    with pytest.raises(OSError, match=f"Failed to write to {GH_OUTPUT}"):
-        github_action_output(["exercise1"], 0)
+    result_code = github_action_output(["exercise1"], 0)
+    assert result_code == 1
 
 
 @pytest.mark.usefixtures("set_up_env_var")
