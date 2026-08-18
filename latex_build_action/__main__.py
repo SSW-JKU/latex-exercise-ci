@@ -10,13 +10,12 @@ requirements.
 """
 
 import logging
-import os
 import sys
-from pathlib import Path
 
 from .build import ResultCode, build_exercise, create_compilation_targets
 from .cli import create_parser
 from .config import Config
+from .gh.utils import github_action_output
 
 log = logging.getLogger(__name__)
 
@@ -50,38 +49,9 @@ def main(config: Config) -> int:
         if last_result_code != 0:
             assert result_code != 0  # noqa: S101
             if config.options.abort_all_on_error:
-                return _set_action_output(changed_exercises, result_code)
+                return github_action_output(changed_exercises, result_code)
 
-    return _set_action_output(changed_exercises, result_code)
-
-
-def _set_action_output(changed_exercises: list[str], result_code: ResultCode) -> ResultCode:
-    """Set the output of the GitHub Action to the changed exercises.
-
-    Args:
-        changed_exercises (list[str]) : The list of changed exercises.
-        result_code (int) : The result code of the compilation.
-
-    Returns:
-        (int) The result code of the compilation.
-
-    """
-    github_output = os.getenv("GITHUB_OUTPUT")
-    if github_output:
-        exercise_str = ",".join(changed_exercises)
-        log.info(
-            "Writing changed exercises (%s) to GitHub output file %s",
-            exercise_str,
-            github_output,
-        )
-        try:
-            with Path(github_output).open("a", encoding="UTF-8") as f:
-                f.write(f"changed-exercises={exercise_str}\n")
-        except OSError:
-            log.exception("Failed to write to %s", github_output)
-            return 1
-
-    return result_code
+    return github_action_output(changed_exercises, result_code)
 
 
 if __name__ == "__main__":
