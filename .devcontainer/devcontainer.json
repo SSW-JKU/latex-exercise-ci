@@ -5,6 +5,7 @@
     "context": ".."
   },
   "postCreateCommand": "pre-commit install || true",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -16,6 +17,10 @@
       ],
       "settings": {
         "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "terminal.integrated.env.linux": {
+          "VIRTUAL_ENV": "/opt/venv",
+          "PATH": "/opt/venv/bin:${env:PATH}"
+        },
         "latex-workshop.latex.tools": [
           {
             "name": "latexmk",
