@@ -12,9 +12,17 @@ RUN apt-get update && \
         latexmk \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+    # set up global virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 # python tooling
 RUN pip install --no-cache-dir pre-commit
 
 # project dependencies
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# grant ownership of the venv to the default non-root devcontainer user
+RUN chown -R vscode:vscode /opt/venv

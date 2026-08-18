@@ -15,16 +15,12 @@
         "ms-python.debugpy"
       ],
       "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
         "latex-workshop.latex.tools": [
           {
             "name": "latexmk",
             "command": "latexmk",
-            "args": [
-              "-pdf",
-              "-interaction=nonstopmode",
-              "-synctex=1",
-              "%DOC%"
-            ]
+            "args": ["-pdf", "-interaction=nonstopmode", "-synctex=1", "%DOC%"]
           }
         ],
         "latex-workshop.latex.recipes": [
