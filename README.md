@@ -109,11 +109,6 @@ Even if some builds succeed, the build bot will still push changes; however, the
 
 This repository uses [pre-commit](https://pre-commit.com/) to automatically check and format files before each commit.
 
-#### Available Hooks
-* **lint** (`make lint`): Lints Python source files
-* **typecheck** (`make typecheck`): Performs static type checking on Python source files
-* **conventional commits**: Enforces [conventional commit](https://www.conventionalcommits.org/) messages.
-
 #### Setup
 
 1. **Install `pre-commit`**:

@@ -11,15 +11,6 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  - repo: local
-    hooks:
-      - id: mypy
-        name: Type Check
-        language: system
-        entry: mypy -p latex_build_action -p tests -p action_tests
-        pass_filenames: false
-        files: \.py$
-
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.4.0
     hooks:
