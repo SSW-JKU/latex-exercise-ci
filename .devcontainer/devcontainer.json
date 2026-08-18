@@ -10,7 +10,9 @@
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "james-yu.latex-workshop"
+        "james-yu.latex-workshop",
+        "charliermarsh.ruff",
+        "ms-python.debugpy"
       ],
       "settings": {
         "latex-workshop.latex.tools": [
