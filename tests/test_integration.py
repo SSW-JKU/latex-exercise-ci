@@ -4,7 +4,6 @@
 
 import logging
 import subprocess
-import unittest
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -279,7 +278,3 @@ class TestBuildExerciseFiles(RealFileSystemTest):
         self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03", expect_buildlog=False)
         self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03_solution", expect_buildlog=False)
         self.assert_not_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele", expect_buildlog=False)
-
-
-if __name__ == "__main__":
-    unittest.main()
