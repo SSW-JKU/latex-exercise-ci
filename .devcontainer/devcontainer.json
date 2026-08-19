@@ -18,6 +18,7 @@
       ],
       "settings": {
         "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.editor.defaultFormatter": "charliermarsh.ruff",
         "terminal.integrated.env.linux": {
           "VIRTUAL_ENV": "/opt/venv",
           "PATH": "/opt/venv/bin:${env:PATH}"
