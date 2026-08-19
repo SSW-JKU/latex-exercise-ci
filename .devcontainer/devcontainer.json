@@ -13,7 +13,8 @@
         "ms-python.vscode-pylance",
         "james-yu.latex-workshop",
         "charliermarsh.ruff",
-        "ms-python.debugpy"
+        "ms-python.debugpy",
+        "esbenp.prettier-vscode"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/opt/venv/bin/python",
