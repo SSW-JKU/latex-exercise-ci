@@ -35,7 +35,40 @@
             "name": "latexmk",
             "tools": ["latexmk"]
           }
-        ]
+        ],
+        "settings": {
+          "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/*/**": true,
+            "**/.venv/**": true,
+            "**/__pycache__/**": true,
+            "**/.pytest_cache/**": true,
+            "**/.mypy_cache/**": true,
+            "**/.ruff_cache/**": true,
+            "**/*.pdf": true,
+            "**/*.aux": true,
+            "**/*.fls": true,
+            "**/*.fdb_latexmk": true,
+            "**/*.synctex.gz": true
+          },
+          "files.exclude": {
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/.mypy_cache": true,
+            "**/.ruff_cache": true,
+            "**/*.aux": true,
+            "**/*.fdb_latexmk": true,
+            "**/*.fls": true,
+            "**/*.synctex.gz": true
+          },
+          "python.analysis.exclude": [
+            "**/__pycache__",
+            "**/.pytest_cache",
+            "**/.mypy_cache",
+            "**/.ruff_cache"
+          ]
+        }
       }
     }
   }
