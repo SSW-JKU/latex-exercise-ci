@@ -43,7 +43,13 @@ packages = ["latex_build_action", "tests", "action_tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = ["-v", "--cov=latex_build_action", "--cov-branch"]
+addopts = ["-v", "--cov=latex_build_action"]
+
+[tool.coverage.run]
+branch = true
 
 [tool.coverage.report]
+exclude_also = [
+  "pragma: no cover"
+]
 fail_under = 95
