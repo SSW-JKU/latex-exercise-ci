@@ -6,7 +6,7 @@ import subprocess
 from collections.abc import Callable, Iterable
 from pathlib import Path
 
-from .config import Config
+from latex_build_action.config import Config
 
 
 def latexmk_compile(

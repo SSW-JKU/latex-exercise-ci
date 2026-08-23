@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from latex_build_action.build import create_latexmk_args, create_latexmk_solution_args
+from latex_build_action.tex.build import create_latexmk_args, create_latexmk_solution_args
 
 
 def test_old_solution_build() -> None:

@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 
-from latex_build_action.build import ResultCode
+from latex_build_action.tex.build import ResultCode
 
 log = logging.getLogger(__name__)
 

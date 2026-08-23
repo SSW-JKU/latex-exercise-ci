@@ -5,8 +5,7 @@
 import logging
 from subprocess import CompletedProcess
 
-from .compilation import TexCompilationTarget, latexmk_compile
-from .config import (
+from latex_build_action.config import (
     EXERCISE_DIR_NAME,
     LESSON_DIR_NAME,
     LESSON_SUFFIX,
@@ -14,8 +13,10 @@ from .config import (
     SOLUTION_SUFFIX,
     Config,
 )
-from .hashing import DEFAULT_IGNORE_PATTERNS, check_and_update_hash
-from .log_utils import print_build_log
+from latex_build_action.hashing import DEFAULT_IGNORE_PATTERNS, check_and_update_hash
+from latex_build_action.log_utils import print_build_log
+
+from .compilation import TexCompilationTarget, latexmk_compile
 
 log = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from latex_build_action.cli import create_parser
+from latex_build_action.cli.args import create_parser
 
 
 @pytest.fixture

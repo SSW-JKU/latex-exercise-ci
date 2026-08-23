@@ -5,11 +5,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-
-from latex_build_action.compilation import TexCompilationTarget, latexmk_compile
-from latex_build_action.config import Config
-
-from ._test_utils import (
+from tests._test_utils import (
     INVALID_TEX_CONTENT,
     VALID_TEX_CONTENT,
     RealFileSystemTest,
@@ -18,6 +14,9 @@ from ._test_utils import (
     create_default_json,
     file_with_parents,
 )
+
+from latex_build_action.config import Config
+from latex_build_action.tex.compilation import TexCompilationTarget, latexmk_compile
 
 type Callback = Callable[[Path, str, str, Path], None]
 
