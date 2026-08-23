@@ -178,14 +178,14 @@ class TexCompilationTarget[R]:
             if resolved.exists():
                 path = str(resolved)
 
-                rm_cmd = ["rm", path]
-
                 cmd: list[str] = []
                 if not self.config.options.no_git:
                     git_rollback = ["git", "checkout", "--", path]
                     cmd += git_rollback
                     cmd += ["||"]
-                cmd += rm_cmd
+
+                # use manual "rm" as a fallback
+                cmd += ["rm", path]
 
                 subprocess.run(  # noqa: S603
                     cmd,
