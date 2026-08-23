@@ -26,4 +26,4 @@ if __name__ == "__main__":
 
     # maybe add changed files to outputs of action?
 
-    sys.exit(main(Config(args)))
+    sys.exit(main(Config.from_args(args)))

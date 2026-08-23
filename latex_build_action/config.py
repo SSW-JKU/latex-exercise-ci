@@ -4,10 +4,8 @@
 
 import json
 from argparse import Namespace
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from dataclasses import dataclass
+from pathlib import Path
 
 EXERCISE_DIR_NAME = "Aufgabe"
 LESSON_DIR_NAME = "Unterricht"
@@ -18,6 +16,7 @@ SOLUTION_SUFFIX = "_solution"
 OLD_SOLUTION_BUILD_SEMESTER_CUTOFF = 23
 
 
+@dataclass
 class Config:
     """Base configuration object for the LaTeX build action.
 
@@ -25,21 +24,30 @@ class Config:
     initially provided JSON configuration file.
     """
 
-    def __init__(self, options: Namespace) -> None:
-        """Create a new configuration by parsing the given JSON and using the provided working directory as a base path.
+    workdir: Path
+    active_semester: int
+    exercises: list[str]
+    exercises_entry_point: str
+    lesson_entry_point: str
+    options: Namespace
+
+    @staticmethod
+    def from_args(options: Namespace) -> "Config":
+        """Create a new Config object from CLI options.
 
         Args:
-            config_file (Path) : The path to the initial config JSON.
-            workdir (Path) : The directory that should be used as a base path.
-            options (Namespace) : The passed CLI options.
+            options (Namespace) : the parsed CLI args
+
+        Returns:
+            Config : the config object initialized with the given args
 
         """
         with options.config.open(encoding="UTF-8") as cf:
             json_config = json.load(cf)
             active_semester_str = json_config["activeSemester"]
-            self.workdir: Path = options.workdir.joinpath(active_semester_str)
-            self.active_semester = int(active_semester_str[:2])
-            self.exercises: list[str] = json_config["exercises"]
-            self.exercises_entry_point: str = json_config["entryPoints"]["exercise"]
-            self.lesson_entry_point: str = json_config["entryPoints"]["lesson"]
-            self.options = options
+            workdir: Path = options.workdir.joinpath(active_semester_str)
+            active_semester = int(active_semester_str[:2])
+            exercises: list[str] = json_config["exercises"]
+            exercises_entry_point: str = json_config["entryPoints"]["exercise"]
+            lesson_entry_point: str = json_config["entryPoints"]["lesson"]
+            return Config(workdir, active_semester, exercises, exercises_entry_point, lesson_entry_point, options)

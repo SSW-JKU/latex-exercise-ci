@@ -57,7 +57,7 @@ def create_default_config(workdir: Path = Path()) -> Config:
         A new config object containing the default test settings.
 
     """
-    return Config(
+    return Config.from_args(
         Namespace(
             config=create_default_json(),
             workdir=workdir,

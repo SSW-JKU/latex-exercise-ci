@@ -83,7 +83,7 @@ class TestTexCompilationTarget(RealFileSystemTest):
 class TestTexCompilationRollback(RealFileSystemTest):
     def test_rollback(self, stub_callback: Callback) -> None:
         target = TexCompilationTarget[None](
-            Config(Namespace(config=create_default_json(), workdir=self.testdir, no_git=True)),
+            Config.from_args(Namespace(config=create_default_json(), workdir=self.testdir, no_git=True)),
             "testsubdir",
             "texfile.tex",
             "no-args",

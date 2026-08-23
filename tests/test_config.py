@@ -11,7 +11,7 @@ from ._test_utils import create_default_json, create_temp_json
 
 
 def test_parse_config() -> None:
-    config = Config(Namespace(config=create_default_json(), workdir=Path()))
+    config = Config.from_args(Namespace(config=create_default_json(), workdir=Path()))
     assert config.workdir == Path("25WS")
     assert config.active_semester == 25
     assert config.exercises == ["UE01", "UE02", "UE03"]
@@ -30,4 +30,4 @@ def test_active_semester_invalid() -> None:
     )
 
     with pytest.raises(ValueError):  # noqa: PT011
-        Config(Namespace(config=invalid_config_json, workdir=Path()))
+        Config.from_args(Namespace(config=invalid_config_json, workdir=Path()))
