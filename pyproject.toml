@@ -14,8 +14,17 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["D", "PLR2004", "S101"]
-"action_tests/*" = ["D", "PLR2004", "S101", "T201"]
+"tests/*" = [
+  "D",        # docstring rules: tests don't need docstrings
+  "PLR2004",  # magic-value-comparison: tests often use magic values
+  "S101"      # assert: allow assertions in tests (rewritten by pytest)
+]
+"action_tests/*" = [
+  "D", 
+  "PLR2004", 
+  "S101", 
+  "T201"      # allow print statements in action tests
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["latex_build_action"]
