@@ -48,13 +48,13 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          cache: "pip"
           python-version: ${{ matrix.python-version }}
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade setuptools
-          pip install -r requirements.txt
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+      - name: Install dependencies
+        run: uv sync --all-groups
       - uses: pre-commit/action@v3.0.1
 
   typecheck:
@@ -67,16 +67,15 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          cache: "pip"
           python-version: ${{ matrix.python-version }}
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
       - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade setuptools
-          pip install -r requirements.txt
+        run: uv sync --all-groups
       - name: Run type check
-        run: mypy
-
+        run: uv run mypy
 
   unit-test:
     name: "Unit Test"
@@ -90,13 +89,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6
         with:
-          cache: "pip" # caching pip dependencies
           python-version: ${{ matrix.python-version }}
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
       - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade setuptools
-          pip install -r requirements.txt
+        run: uv sync --all-groups
       - name: Setup TeX Live
         uses: zauguin/install-texlive@v4
         with:
@@ -105,7 +104,7 @@ jobs:
             scheme-basic
             latexmk
       - name: Run unittests
-        run: pytest
+        run: uv run pytest
 
   integration-test:
     name: "Integration Test"
@@ -119,13 +118,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6
         with:
-          cache: "pip" # caching pip dependencies
           python-version: ${{ matrix.python-version }}
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
       - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade setuptools
-          pip install -r requirements.txt
+        run: uv sync --all-groups
 
       # Integration test 1
 

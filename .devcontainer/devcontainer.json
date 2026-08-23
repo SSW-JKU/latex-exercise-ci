@@ -4,6 +4,7 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
+  "updateContentCommand": "uv sync --all-groups",
   "postCreateCommand": "pre-commit install || true",
   "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
   "customizations": {
@@ -18,14 +19,14 @@
       ],
       "settings": {
         "[python]": {
-          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.defaultFormatter": "charliermarsh.ruff"
         },
-        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "terminal.integrated.env.linux": {
-          "VIRTUAL_ENV": "/opt/venv",
-          "PATH": "/opt/venv/bin:${env:PATH}"
+          "VIRTUAL_ENV": "${workspaceFolder}/.venv",
+          "PATH": "${workspaceFolder}/.venv/bin:${env:PATH}"
         },
         "latex-workshop.latex.tools": [
           {
@@ -40,39 +41,37 @@
             "tools": ["latexmk"]
           }
         ],
-        "settings": {
-          "files.watcherExclude": {
-            "**/.git/objects/**": true,
-            "**/.git/subtree-cache/**": true,
-            "**/node_modules/*/**": true,
-            "**/.venv/**": true,
-            "**/__pycache__/**": true,
-            "**/.pytest_cache/**": true,
-            "**/.mypy_cache/**": true,
-            "**/.ruff_cache/**": true,
-            "**/*.pdf": true,
-            "**/*.aux": true,
-            "**/*.fls": true,
-            "**/*.fdb_latexmk": true,
-            "**/*.synctex.gz": true
-          },
-          "files.exclude": {
-            "**/__pycache__": true,
-            "**/.pytest_cache": true,
-            "**/.mypy_cache": true,
-            "**/.ruff_cache": true,
-            "**/*.aux": true,
-            "**/*.fdb_latexmk": true,
-            "**/*.fls": true,
-            "**/*.synctex.gz": true
-          },
-          "python.analysis.exclude": [
-            "**/__pycache__",
-            "**/.pytest_cache",
-            "**/.mypy_cache",
-            "**/.ruff_cache"
-          ]
-        }
+        "files.watcherExclude": {
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true,
+          "**/node_modules/*/**": true,
+          "**/.venv/**": true,
+          "**/__pycache__/**": true,
+          "**/.pytest_cache/**": true,
+          "**/.mypy_cache/**": true,
+          "**/.ruff_cache/**": true,
+          "**/*.pdf": true,
+          "**/*.aux": true,
+          "**/*.fls": true,
+          "**/*.fdb_latexmk": true,
+          "**/*.synctex.gz": true
+        },
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/.mypy_cache": true,
+          "**/.ruff_cache": true,
+          "**/*.aux": true,
+          "**/*.fdb_latexmk": true,
+          "**/*.fls": true,
+          "**/*.synctex.gz": true
+        },
+        "python.analysis.exclude": [
+          "**/__pycache__",
+          "**/.pytest_cache",
+          "**/.mypy_cache",
+          "**/.ruff_cache"
+        ]
       }
     }
   }
