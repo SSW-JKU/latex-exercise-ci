@@ -210,11 +210,8 @@ class TestBuildExerciseFiles(RealFileSystemTest):
         # create exercise folders
         self.generate_tex_files(
             Path("UE01", "Aufgabe", "main.tex"),
-            Path("UE01", "Unterricht", "Lernziele.tex"),
             Path("UE02", "Aufgabe", "main.tex"),
-            Path("UE02", "Unterricht", "Lernziele.tex"),
             Path("UE03", "Aufgabe", "main.tex"),
-            Path("UE03", "Unterricht", "Lernziele.tex"),
             valid=True,
         )
 
@@ -246,3 +243,36 @@ class TestBuildExerciseFiles(RealFileSystemTest):
         self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03", expect_buildlog=False)
         self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03_solution", expect_buildlog=False)
         self.assert_not_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele", expect_buildlog=False)
+
+    @pytest.mark.parametrize("build", failed_builds)
+    def test_build_error_abort_all(self, build: BuildErrorFn) -> None:
+
+        # create exercise folders
+        self.generate_tex_files(
+            Path("UE01", "Unterricht", "Lernziele.tex"),
+            Path("UE02", "Aufgabe", "main.tex"),
+            Path("UE02", "Unterricht", "Lernziele.tex"),
+            valid=True,
+        )
+
+        self.generate_tex_files(
+            Path("UE01", "Aufgabe", "main.tex"),
+            valid=False,
+        )
+
+        build(
+            self.testdir,
+            ["UE01", "UE02"],
+            ["--abort-all-on-error"],
+        )
+
+        self.assert_no_file("25WS", "UE01", ".checksum")
+        self.assert_no_file("25WS", "UE02", ".checksum")
+
+        self.assert_was_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01", expect_buildlog=True)
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01_solution", expect_buildlog=False)
+
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele", expect_buildlog=False)
