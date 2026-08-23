@@ -17,8 +17,12 @@
         "esbenp.prettier-vscode"
       ],
       "settings": {
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+        },
         "python.defaultInterpreterPath": "/opt/venv/bin/python",
-        "python.editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "terminal.integrated.env.linux": {
           "VIRTUAL_ENV": "/opt/venv",
           "PATH": "/opt/venv/bin:${env:PATH}"
