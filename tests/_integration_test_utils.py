@@ -8,7 +8,7 @@ from pathlib import Path
 
 from latex_build_action.cli.args import create_parser
 from latex_build_action.config import Config
-from latex_build_action.latex_build_action import main
+from latex_build_action.main import run_action
 
 from ._test_utils import create_temp_json
 
@@ -69,7 +69,7 @@ def _main(workdir: Path, exercises: Iterable[str], extra_args: Iterable[str] = (
         ]
     )
     config = Config.from_args(args)
-    return main(config)
+    return run_action(config)
 
 
 def _build(
