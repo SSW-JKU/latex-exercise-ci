@@ -46,28 +46,42 @@ def create_default_json() -> Path:
     return create_temp_json(**DEFAULT_CONFIG)
 
 
-def create_default_config(workdir: Path = Path()) -> Config:
+def create_default_config(workdir: Path = Path(), json_config: Path | None = None) -> Config:
     """Creates the default test configuration and returns it.
 
     Args:
         workdir (Path, default='.') : The working directory that is used
                                       for resolving the configuration paths.
+        json_config (Path, optional) : Optional JSON config
 
     Returns:
         A new config object containing the default test settings.
 
     """
-    return Config.from_args(
-        Namespace(
-            config=create_default_json(),
-            workdir=workdir,
-            no_git=False,
-            abort_on_error=False,
-            abort_all_on_error=False,
-            rollback_on_error=False,
-            rehash_on_error=False,
-            verbose=False,
-        )
+    return Config.from_args(create_default_namespace(workdir, json_config))
+
+
+def create_default_namespace(workdir: Path = Path(), json_config: Path | None = None) -> Namespace:
+    """Creates the default CLI namespace and returns it.
+
+    Args:
+        workdir (Path, default='.') : The working directory that is used
+                                      for resolving the configuration paths.
+        json_config (Path, optional) : Optional JSON config
+
+    Returns:
+        A new config object containing the default test settings.
+
+    """
+    return Namespace(
+        config=json_config or create_default_json(),
+        workdir=workdir,
+        no_git=False,
+        abort_on_error=False,
+        abort_all_on_error=False,
+        rollback_on_error=False,
+        rehash_on_error=False,
+        verbose=False,
     )
 
 

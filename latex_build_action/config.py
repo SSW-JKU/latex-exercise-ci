@@ -39,7 +39,7 @@ class Config:
             options (Namespace) : the parsed CLI args
 
         Returns:
-            Config : the config object initialized with the given args
+            (Config) the config object initialized with the given args
 
         """
         with options.config.open(encoding="UTF-8") as cf:
