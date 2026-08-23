@@ -1,18 +1,20 @@
-"""
-Additional logging utility methods
-"""
+#!/usr/bin/env python
 
+"""Additional logging utility methods."""
+
+from logging import Logger
 from pathlib import Path
 
 
-def print_build_log(log_path: Path) -> None:
-    """
-    Prints all lines of the specified build log file.
+def print_build_log(logger: Logger, log_path: Path) -> None:
+    """Print all lines of the specified build log file.
 
     Args:
+        logger (Logger) : The logger to use for printing the log lines.
         log_path (Path) : The path to the log file.
+
     """
     if log_path.is_file():
-        with open(log_path, "r", encoding="UTF-8") as f:
+        with log_path.open(encoding="UTF-8") as f:
             for line in f.read().splitlines():
-                print(line)
+                logger.info(line)

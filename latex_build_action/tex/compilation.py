@@ -1,13 +1,12 @@
-"""
-A module containing functions and classes to define and perform
-LaTeX compilations.
-"""
+#!/usr/bin/env python
 
-import os
-from pathlib import Path
-from typing import Callable, Generic, Iterable, TypeVar
+"""A module containing functions and classes to define and perform LaTeX compilations."""
+
 import subprocess
-from .config import Config
+from collections.abc import Callable, Iterable
+from pathlib import Path
+
+from latex_build_action.config import Config
 
 
 def latexmk_compile(
@@ -15,10 +14,8 @@ def latexmk_compile(
     output_name: str,
     pdflatex_args: str,
     logfile: Path,
-    log_cmd: bool = False,
 ) -> subprocess.CompletedProcess[bytes]:
-    """
-    Uses `latexmk` and `pdflatex` to compile the given file to a PDF.
+    """Use `latexmk` and `pdflatex` to compile the given file to a PDF.
 
     Args:
         pdflatex_args (str) : The arguments that are passed to the command.
@@ -26,21 +23,19 @@ def latexmk_compile(
         output_name (str) : The output name of the compilation.
         logfile (Path) : A path to the logfile to which the command output is
                          written.
-        log (bool, default: False) : Print the executed command to console.
-    """
 
+    """
     # For some reason, calling `latexmk .. -pdflatex='pdflatex ...'` via
     # subprocess does not work as it cannot find `pdflatex` afterwards.
     # Maybe, this has something to do with environment vars (particularly PATH)
     # that are not properly propagated to the command executed from `latexmk`.
     # Putting the actual call into a separate shell script seems to do the
     # trick.
-    compile_script = Path(os.path.dirname(__file__), "compile_tex.sh")
+    compile_script = Path(__file__).parent.joinpath("compile_tex.sh")
 
-    with open(logfile, "w", encoding="UTF-8") as log:
-        proc = subprocess.run(
-            # latexmk_cmd(file_path, output_name, pdflatex_args),
-            [
+    with logfile.open("w", encoding="UTF-8") as log:
+        return subprocess.run(  # noqa: S603
+            [  # noqa: S607
                 "sh",
                 compile_script,
                 str(file_path.resolve()),
@@ -53,25 +48,18 @@ def latexmk_compile(
             stderr=subprocess.STDOUT,
         )
 
-        if log_cmd:
-            print(f"the commandline is {proc.args}")
 
-        return proc
+type CompileAction[R] = Callable[[Path, str, str, Path], R]
 
 
-R = TypeVar("R")
+class TexCompilationTarget[R]:
+    """Defines a compilation target for arbitrary exercises.
 
-CompileAction = Callable[[Path, str, str, Path], R]
-
-
-class TexCompilationTarget(Generic[R]):
-    """
-    Defines a compilation target for arbitrary exercises.
     A compilation target takes a single (TeX) file as an input
     and produces an output and typically a log file.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         config: Config,
         local_directory: str,
@@ -80,10 +68,7 @@ class TexCompilationTarget(Generic[R]):
         compile_action: CompileAction[R],
         file_suffix: str = "",
     ) -> None:
-        # pylint: disable=too-many-arguments,too-many-positional-arguments
-        """
-        Defines a new compilation target for the given local directory in the
-        context of the given context.
+        """Define a new compilation target for the given local directory in the context of the given context.
 
         Args:
             config (Config) : The configuration that should be used.
@@ -96,6 +81,7 @@ class TexCompilationTarget(Generic[R]):
             file_suffix (str) : The suffix that is appended for the output file
                                 name.
             compile_action (CompileAction, default) : The compilation action.
+
         """
         self.config = config
         self.local_directory = local_directory
@@ -105,61 +91,61 @@ class TexCompilationTarget(Generic[R]):
         self.compile_action: CompileAction[R] = compile_action
 
     def _generate_path(self, exercise: str) -> Path:
-        """
-        Generates the base path for the given exercise.
+        """Generate the base path for the given exercise.
+
         Args:
             exercise (str) : The target exercise.
 
         Returns:
             (Path) The target base path for the exercise.
+
         """
         return self.config.workdir.joinpath(exercise).joinpath(self.local_directory)
 
     def name(self, exercise: str) -> str:
-        """
-        Returns the target name for the given exercise.
+        """Return the target name for the given exercise.
+
         Args:
             exercise (str) : The target exercise.
 
         Returns:
             (str) The target name for the exercise.
+
         """
         return exercise + self.file_suffix + ".pdf"
 
     def logfile_name(self, exercise: str) -> str:
-        """
-        Returns the logfile name for the given exercise.
+        """Return the logfile name for the given exercise.
+
         Args:
             exercise (str) : The target exercise.
 
         Returns:
             (str) The target logfile name for the exercise.
+
         """
         return exercise + self.file_suffix + ".build_log"
 
     def logfile(self, exercise: str) -> Path:
-        """
-        Returns the logfile path for the given exercise.
+        """Return the logfile path for the given exercise.
+
         Args:
             exercise (str) : The target exercise.
 
         Returns:
             (str) The target logfile path for the exercise.
+
         """
         return self._generate_path(exercise).joinpath(self.logfile_name(exercise))
 
     def generated_files(self, exercise: str) -> Iterable[Path]:
-        """
-        Returns the (relative) file paths that will be generated by this
-        compilation.
-        """
+        """Return the (relative) file paths that will be generated by this compilation."""
         file_names = [self.name(exercise), self.logfile_name(exercise)]
         basepath = self._generate_path(exercise)
         return [basepath.joinpath(n) for n in file_names]
 
     def compile(self, exercise: str) -> R:
-        """
-        Compiles this target for the given exercise.
+        """Compiles this target for the given exercise.
 
         Args:
             exercise (str) : The exercise number for whom the target should be
@@ -167,41 +153,41 @@ class TexCompilationTarget(Generic[R]):
 
         Returns:
             The result of the compilation action.
+
         """
-        assert (
-            exercise in self.config.exercises
-        ), f"Exercise {exercise} not defined in config"
+        if exercise not in self.config.exercises:
+            msg = f"Exercise {exercise} not defined in config"
+            raise ValueError(msg)
+
         target_file_dir = self._generate_path(exercise)
         output_name = f"{exercise}{self.file_suffix}"
         file_path = target_file_dir.joinpath(self.entry_point)
 
-        return self.compile_action(
-            file_path, output_name, self.latexmk_args, self.logfile(exercise)
-        )
+        return self.compile_action(file_path, output_name, self.latexmk_args, self.logfile(exercise))
 
     def rollback(self, exercise: str) -> None:
-        """
-        Rolls back any changes to the target generated files.
+        """Roll back any changes to the target generated files.
 
         Args:
             exercise (str) : The exercise for which the changes should be
                              reverted.
+
         """
         for f in self.generated_files(exercise):
             resolved = f.resolve()
             if resolved.exists():
                 path = str(resolved)
 
-                git_rollback = ["git", "checkout", "--", path]
-                rm_cmd = ["rm", path]
-
                 cmd: list[str] = []
                 if not self.config.options.no_git:
+                    git_rollback = ["git", "checkout", "--", path]
                     cmd += git_rollback
                     cmd += ["||"]
-                cmd += rm_cmd
 
-                subprocess.run(
+                # use manual "rm" as a fallback
+                cmd += ["rm", path]
+
+                subprocess.run(  # noqa: S603
                     cmd,
                     check=False,
                     stdout=subprocess.DEVNULL,

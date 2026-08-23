@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 
-"""
-Preparation and verification script for the integration tests.
+"""Preparation and verification script for the integration tests.
 This script prepares the test repositories and sets up the test files for the integration tests or
 performs verification after the action was executed.
 """
 
-import subprocess
-import shutil
 import argparse
+import shutil
+import subprocess
 
-from .test_repository import TestRepository, git, REMOTE_PATH, LOCAL_PATH
 from .scenarios import SCENARIOS
+from .test_repository import LOCAL_PATH, REMOTE_PATH, TestRepository, git
 
 
 def _check_git_installed() -> None:
@@ -19,7 +18,8 @@ def _check_git_installed() -> None:
         git("--version")
         print("Git is available.")
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        raise EnvironmentError("Git is not installed or not found in PATH.") from e
+        msg = "Git is not installed or not found in PATH."
+        raise OSError(msg) from e
 
 
 def _prepare() -> None:
@@ -40,8 +40,7 @@ def _prepare() -> None:
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Set up test git repositories for testing and verify "
-        "their contents afterwards."
+        description="Set up test git repositories for testing and verify their contents afterwards."
     )
     parser.add_argument(
         "outcome",
@@ -65,7 +64,9 @@ if __name__ == "__main__":
     if args.check:
         s = SCENARIOS.get_scenario(args.check)
         if s is None:
-            raise ValueError(f"Scenario '{args.check}' not found.")
+            msg = f"Scenario '{args.check}' not found."
+            raise ValueError(msg)
+
         print(f"Verifying integration test outputs for '{s.name}'")
         repo = TestRepository(s.name, REMOTE_PATH, LOCAL_PATH)
         s.check_outcome(args.outcome)

@@ -1,0 +1,79 @@
+{
+  "name": "Python + LaTeX",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "postCreateCommand": "pre-commit install || true",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "james-yu.latex-workshop",
+        "charliermarsh.ruff",
+        "ms-python.debugpy",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+        },
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "terminal.integrated.env.linux": {
+          "VIRTUAL_ENV": "/opt/venv",
+          "PATH": "/opt/venv/bin:${env:PATH}"
+        },
+        "latex-workshop.latex.tools": [
+          {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": ["-pdf", "-interaction=nonstopmode", "-synctex=1", "%DOC%"]
+          }
+        ],
+        "latex-workshop.latex.recipes": [
+          {
+            "name": "latexmk",
+            "tools": ["latexmk"]
+          }
+        ],
+        "settings": {
+          "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/*/**": true,
+            "**/.venv/**": true,
+            "**/__pycache__/**": true,
+            "**/.pytest_cache/**": true,
+            "**/.mypy_cache/**": true,
+            "**/.ruff_cache/**": true,
+            "**/*.pdf": true,
+            "**/*.aux": true,
+            "**/*.fls": true,
+            "**/*.fdb_latexmk": true,
+            "**/*.synctex.gz": true
+          },
+          "files.exclude": {
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/.mypy_cache": true,
+            "**/.ruff_cache": true,
+            "**/*.aux": true,
+            "**/*.fdb_latexmk": true,
+            "**/*.fls": true,
+            "**/*.synctex.gz": true
+          },
+          "python.analysis.exclude": [
+            "**/__pycache__",
+            "**/.pytest_cache",
+            "**/.mypy_cache",
+            "**/.ruff_cache"
+          ]
+        }
+      }
+    }
+  }
+}

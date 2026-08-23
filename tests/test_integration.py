@@ -1,76 +1,44 @@
-"""
-Integration test suite
-"""
+#!/usr/bin/env python
 
-from typing import Iterable
+"""Integration test suite"""
+
 from pathlib import Path
-import subprocess
-import unittest
-from ._test_utils import RealFileSystemTestCase, create_temp_json
 
-INTEGRATION_TEST_CONFIG_BASE: dict[str, str | list[str] | dict[str, str]] = {
-    "activeSemester": "25WS",
-    "exercises": [],
-    "entryPoints": {"exercise": "main.tex", "lesson": "Lernziele.tex"},
-}
+import pytest
+
+from tests._integration_test_utils import BuildErrorFn, BuildSuccessFn, failed_builds, success_builds
+
+from ._test_utils import RealFileSystemTest
 
 
-def run_build(
-    workdir: Path,
-    *exercises: str,
-    extra_args: Iterable[str] = tuple(),
-    print_log: bool = False
-) -> subprocess.CompletedProcess[bytes]:
-    """
-    Runs the integration test for the given exercises in the target working
-    directory using the `INTEGRATION_TEST_CONFIG_BASE` example config as a
-    baseline.
+class TestBuildExerciseFiles(RealFileSystemTest):
+    @pytest.mark.parametrize("build", success_builds)
+    def test_no_exercises_specified(self, build: BuildSuccessFn) -> None:
 
-    Args:
-        workdir (Path) : The working directory.
-        *exercises (str) : The exercises that should be compiled.
-        print_log (bool, default: False) : Debug flag that prints the command
-                                           output to console.
-    """
-    config = {**INTEGRATION_TEST_CONFIG_BASE}
-    config["exercises"] = list(exercises)
-    json_config = create_temp_json(**config)
-
-    logfile = workdir.joinpath(".test.log")
-
-    with open(logfile, "w", encoding="UTF-8") as log:
-        result = subprocess.run(
-            [
-                "python3",
-                "-m",
-                "latex_build_action",
-                "-d",
-                str(workdir.absolute()),
-                "-c",
-                str(json_config.absolute()),
-                "--no-git",
-                *extra_args,
-            ],
-            check=False,
-            shell=False,
-            stdout=log,
-            stderr=subprocess.STDOUT,
+        # create exercise folders
+        self.generate_tex_files(
+            Path("UE01", "Aufgabe", "main.tex"),
+            Path("UE01", "Unterricht", "Lernziele.tex"),
+            Path("UE02", "Aufgabe", "main.tex"),
+            Path("UE02", "Unterricht", "Lernziele.tex"),
+            valid=True,
         )
 
-    if print_log:
-        with open(logfile, "r", encoding="UTF-8") as f:
-            print(f.read())
+        build(self.testdir, [])
 
-    logfile.unlink()
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele", expect_buildlog=False)
 
-    return result
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele", expect_buildlog=False)
 
+        self.assert_no_file("25WS", "UE01", ".checksum")
+        self.assert_no_file("25WS", "UE02", ".checksum")
 
-class TestBuildExerciseFiles(RealFileSystemTestCase):
-    # pylint: disable=missing-class-docstring
-
-    def test_initial_compilation_success(self) -> None:
-        # pylint: disable=missing-function-docstring
+    @pytest.mark.parametrize("build", success_builds)
+    def test_initial_compilation_success(self, build: BuildSuccessFn) -> None:
 
         # create exercise folders
         self.generate_tex_files(
@@ -83,26 +51,26 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             valid=True,
         )
 
-        run_build(self.testdir, "UE01", "UE02", "UE03").check_returncode()
+        build(self.testdir, ["UE01", "UE02", "UE03"])
 
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01")
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01_solution")
-        self.assertWasCompiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
+        self.assert_was_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
 
-        self.assertWasCompiled("25WS", "UE02", "Aufgabe", "UE02")
-        self.assertWasCompiled("25WS", "UE02", "Aufgabe", "UE02_solution")
-        self.assertWasCompiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
+        self.assert_was_compiled("25WS", "UE02", "Aufgabe", "UE02")
+        self.assert_was_compiled("25WS", "UE02", "Aufgabe", "UE02_solution")
+        self.assert_was_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
 
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03")
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03_solution")
-        self.assertWasCompiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03_solution")
+        self.assert_was_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
 
-        self.assertIsFile("25WS", "UE01", ".checksum")
-        self.assertIsFile("25WS", "UE02", ".checksum")
-        self.assertIsFile("25WS", "UE03", ".checksum")
+        self.assert_is_file("25WS", "UE01", ".checksum")
+        self.assert_is_file("25WS", "UE02", ".checksum")
+        self.assert_is_file("25WS", "UE03", ".checksum")
 
-    def test_exercise_directory_does_not_exist_success(self) -> None:
-        # pylint: disable=missing-function-docstring
+    @pytest.mark.parametrize("build", success_builds)
+    def test_exercise_directory_does_not_exist_success(self, build: BuildSuccessFn) -> None:
 
         # create exercise folders
         self.generate_tex_files(
@@ -111,16 +79,16 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             valid=True,
         )
 
-        run_build(self.testdir, "UE01", "UE02").check_returncode()
+        build(self.testdir, ["UE01", "UE02"])
 
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01")
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01_solution")
-        self.assertWasCompiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
+        self.assert_was_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
 
-        self.assertIsFile("25WS", "UE01", ".checksum")
+        self.assert_is_file("25WS", "UE01", ".checksum")
 
-    def test_repeated_compilation_success(self) -> None:
-        # pylint: disable=missing-function-docstring
+    @pytest.mark.parametrize("build", success_builds)
+    def test_repeated_compilation_success(self, build: BuildSuccessFn) -> None:
 
         # create exercise folders
         self.generate_tex_files(
@@ -133,7 +101,7 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             valid=True,
         )
 
-        run_build(self.testdir, "UE01", "UE02", "UE03").check_returncode()
+        build(self.testdir, ["UE01", "UE02", "UE03"])
 
         old_checksums = [
             self.checksum("25WS", "UE01"),
@@ -141,23 +109,23 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             self.checksum("25WS", "UE03"),
         ]
 
-        run_build(self.testdir, "UE01", "UE02", "UE03").check_returncode()
+        build(self.testdir, ["UE01", "UE02", "UE03"])
 
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01")
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01_solution")
-        self.assertWasCompiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
+        self.assert_was_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
 
-        self.assertWasCompiled("25WS", "UE02", "Aufgabe", "UE02")
-        self.assertWasCompiled("25WS", "UE02", "Aufgabe", "UE02_solution")
-        self.assertWasCompiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
+        self.assert_was_compiled("25WS", "UE02", "Aufgabe", "UE02")
+        self.assert_was_compiled("25WS", "UE02", "Aufgabe", "UE02_solution")
+        self.assert_was_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
 
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03")
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03_solution")
-        self.assertWasCompiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03_solution")
+        self.assert_was_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
 
-        self.assertIsFile("25WS", "UE01", ".checksum")
-        self.assertIsFile("25WS", "UE02", ".checksum")
-        self.assertIsFile("25WS", "UE03", ".checksum")
+        self.assert_is_file("25WS", "UE01", ".checksum")
+        self.assert_is_file("25WS", "UE02", ".checksum")
+        self.assert_is_file("25WS", "UE03", ".checksum")
 
         new_checksums = [
             self.checksum("25WS", "UE01"),
@@ -165,10 +133,10 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             self.checksum("25WS", "UE03"),
         ]
 
-        self.assertEqual(old_checksums, new_checksums)
+        assert old_checksums == new_checksums
 
-    def test_build_error_no_hashing_no_rollback(self) -> None:
-        # pylint: disable=missing-function-docstring
+    @pytest.mark.parametrize("build", failed_builds)
+    def test_build_error_no_hashing_no_rollback(self, build: BuildErrorFn) -> None:
 
         # create exercise folders
         self.generate_tex_files(
@@ -180,31 +148,28 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             valid=True,
         )
 
-        self.generate_tex_files(
-            Path("UE03", "Unterricht", "Lernziele.tex"), valid=False
-        )
+        self.generate_tex_files(Path("UE03", "Unterricht", "Lernziele.tex"), valid=False)
 
-        result = run_build(self.testdir, "UE01", "UE02", "UE03")
+        build(self.testdir, ["UE01", "UE02", "UE03"], [])
 
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIsFile("25WS", "UE01", ".checksum")
-        self.assertIsFile("25WS", "UE02", ".checksum")
-        self.assertNoFile("25WS", "UE03", ".checksum")
+        self.assert_is_file("25WS", "UE01", ".checksum")
+        self.assert_is_file("25WS", "UE02", ".checksum")
+        self.assert_no_file("25WS", "UE03", ".checksum")
 
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01")
-        self.assertWasCompiled("25WS", "UE01", "Aufgabe", "UE01_solution")
-        self.assertWasCompiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01")
+        self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
+        self.assert_was_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
 
-        self.assertWasCompiled("25WS", "UE02", "Aufgabe", "UE02")
-        self.assertWasCompiled("25WS", "UE02", "Aufgabe", "UE02_solution")
-        self.assertWasCompiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
+        self.assert_was_compiled("25WS", "UE02", "Aufgabe", "UE02")
+        self.assert_was_compiled("25WS", "UE02", "Aufgabe", "UE02_solution")
+        self.assert_was_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
 
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03")
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03_solution")
-        self.assertNotCompiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03_solution")
+        self.assert_not_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
 
-    def test_build_error_rehashing_no_rollback(self) -> None:
-        # pylint: disable=missing-function-docstring
+    @pytest.mark.parametrize("build", failed_builds)
+    def test_build_error_rehashing_no_rollback(self, build: BuildErrorFn) -> None:
 
         # create exercise folders
         self.generate_tex_files(
@@ -221,38 +186,32 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             valid=False,
         )
 
-        result = run_build(
-            self.testdir, "UE01", "UE02", "UE03", extra_args=["--rehash-on-error"]
-        )
+        build(self.testdir, ["UE01", "UE02", "UE03"], ["--rehash-on-error"])
 
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIsFile("25WS", "UE01", ".checksum")
-        self.assertIsFile("25WS", "UE02", ".checksum")
-        self.assertIsFile("25WS", "UE03", ".checksum")
+        self.assert_is_file("25WS", "UE01", ".checksum")
+        self.assert_is_file("25WS", "UE02", ".checksum")
+        self.assert_is_file("25WS", "UE03", ".checksum")
 
-        self.assertNotCompiled("25WS", "UE01", "Aufgabe", "UE01")
-        self.assertNotCompiled("25WS", "UE01", "Aufgabe", "UE01_solution")
-        self.assertWasCompiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01")
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
+        self.assert_was_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
 
-        self.assertNotCompiled("25WS", "UE02", "Aufgabe", "UE02")
-        self.assertNotCompiled("25WS", "UE02", "Aufgabe", "UE02_solution")
-        self.assertWasCompiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02")
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02_solution")
+        self.assert_was_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele")
 
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03")
-        self.assertWasCompiled("25WS", "UE03", "Aufgabe", "UE03_solution")
-        self.assertWasCompiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03")
+        self.assert_was_compiled("25WS", "UE03", "Aufgabe", "UE03_solution")
+        self.assert_was_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele")
 
-    def test_build_error_rehashing_rollback(self) -> None:
-        # pylint: disable=missing-function-docstring
+    @pytest.mark.parametrize("build", failed_builds)
+    def test_build_error_rehashing_rollback(self, build: BuildErrorFn) -> None:
 
         # create exercise folders
         self.generate_tex_files(
             Path("UE01", "Aufgabe", "main.tex"),
-            Path("UE01", "Unterricht", "Lernziele.tex"),
             Path("UE02", "Aufgabe", "main.tex"),
-            Path("UE02", "Unterricht", "Lernziele.tex"),
             Path("UE03", "Aufgabe", "main.tex"),
-            Path("UE03", "Unterricht", "Lernziele.tex"),
             valid=True,
         )
 
@@ -263,43 +222,57 @@ class TestBuildExerciseFiles(RealFileSystemTestCase):
             valid=False,
         )
 
-        result = run_build(
+        build(
             self.testdir,
-            "UE01",
-            "UE02",
-            "UE03",
-            extra_args=["--abort-on-error", "--rehash-on-error", "--rollback-on-error"],
+            ["UE01", "UE02", "UE03"],
+            ["--abort-on-error", "--rehash-on-error", "--rollback-on-error"],
         )
 
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIsFile("25WS", "UE01", ".checksum")
-        self.assertIsFile("25WS", "UE02", ".checksum")
-        self.assertIsFile("25WS", "UE03", ".checksum")
+        self.assert_is_file("25WS", "UE01", ".checksum")
+        self.assert_is_file("25WS", "UE02", ".checksum")
+        self.assert_is_file("25WS", "UE03", ".checksum")
 
-        self.assertNotCompiled("25WS", "UE01", "Aufgabe", "UE01", expect_buildlog=False)
-        self.assertNotCompiled(
-            "25WS", "UE01", "Aufgabe", "UE01_solution", expect_buildlog=False
-        )
-        self.assertNotCompiled(
-            "25WS", "UE01", "Unterricht", "UE01_Lernziele", expect_buildlog=False
-        )
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele", expect_buildlog=False)
 
-        self.assertNotCompiled("25WS", "UE02", "Aufgabe", "UE02", expect_buildlog=False)
-        self.assertNotCompiled(
-            "25WS", "UE02", "Aufgabe", "UE02_solution", expect_buildlog=False
-        )
-        self.assertNotCompiled(
-            "25WS", "UE02", "Unterricht", "UE02_Lernziele", expect_buildlog=False
-        )
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele", expect_buildlog=False)
 
-        self.assertNotCompiled("25WS", "UE03", "Aufgabe", "UE03", expect_buildlog=False)
-        self.assertNotCompiled(
-            "25WS", "UE03", "Aufgabe", "UE03_solution", expect_buildlog=False
-        )
-        self.assertNotCompiled(
-            "25WS", "UE03", "Unterricht", "UE03_Lernziele", expect_buildlog=False
+        self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele", expect_buildlog=False)
+
+    @pytest.mark.parametrize("build", failed_builds)
+    def test_build_error_abort_all(self, build: BuildErrorFn) -> None:
+
+        # create exercise folders
+        self.generate_tex_files(
+            Path("UE01", "Unterricht", "Lernziele.tex"),
+            Path("UE02", "Aufgabe", "main.tex"),
+            Path("UE02", "Unterricht", "Lernziele.tex"),
+            valid=True,
         )
 
+        self.generate_tex_files(
+            Path("UE01", "Aufgabe", "main.tex"),
+            valid=False,
+        )
 
-if __name__ == "__main__":
-    unittest.main()
+        build(
+            self.testdir,
+            ["UE01", "UE02"],
+            ["--abort-all-on-error"],
+        )
+
+        self.assert_no_file("25WS", "UE01", ".checksum")
+        self.assert_no_file("25WS", "UE02", ".checksum")
+
+        self.assert_was_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele")
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01", expect_buildlog=True)
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01_solution", expect_buildlog=False)
+
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele", expect_buildlog=False)

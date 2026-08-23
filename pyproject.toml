@@ -1,0 +1,55 @@
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+src = ["latex_build_action", "tests", "action_tests"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "COM812",  # trailing-comma rule: conflicts with the formatter
+  "ISC001",  # implicit string concat: conflicts with the formatter
+  "D203",    # 1 blank line before class docstring (conflicts with D211)
+  "D213",    # multi-line docstring summary on second line (conflicts with D212)
+  "CPY001",  # don't require copyright notice
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+  "D",        # docstring rules: tests don't need docstrings
+  "PLR2004",  # magic-value-comparison: tests often use magic values
+  "S101"      # assert: allow assertions in tests (rewritten by pytest)
+]
+"action_tests/*" = [
+  "D", 
+  "PLR2004", 
+  "S101", 
+  "T201"      # allow print statements in action tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["latex_build_action"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+pretty = true
+warn_unreachable = true
+check_untyped_defs = true
+enable_error_code = ["ignore-without-code"]
+packages = ["latex_build_action", "tests", "action_tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-v", "--cov=latex_build_action"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_also = [
+  "pragma: no cover"
+]
+fail_under = 95

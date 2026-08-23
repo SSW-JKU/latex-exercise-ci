@@ -1,6 +1,4 @@
-"""
-Defines various integration test scenarios and their verification steps.
-"""
+"""Defines various integration test scenarios and their verification steps."""
 
 from action_tests.scenario import Scenario, ScenarioManager, assert_eq, check_commit
 
@@ -15,13 +13,10 @@ FAILURE_OUTCOME = "failure"
 
 
 class BuildTestScenario(Scenario):
-    """
-    Abstract base class for all build action integration test scenarios.
-    """
+    """Abstract base class for all build action integration test scenarios."""
 
     def get_changed_files(self, repo: TestRepository) -> list[str]:
-        """
-        Retrieves a list of files marked as changed in the build commit.
+        """Retrieves a list of files marked as changed in the build commit.
 
         Args:
             repo (TestRepository) : The test repository that defines the
@@ -30,6 +25,7 @@ class BuildTestScenario(Scenario):
         Returns:
             (list[str]) A list of all changed files (all relative to the local
             repository)
+
         """
         log = git(
             "log",
@@ -41,11 +37,8 @@ class BuildTestScenario(Scenario):
         )
         return log.stdout.strip().split("\n")
 
-    def assert_bot_commit(
-        self, repo: TestRepository, *changed_files: list[str]
-    ) -> None:
-        """
-        Asserts that a bot commit happened and verifies the commit messages
+    def assert_bot_commit(self, repo: TestRepository, *changed_files: list[str]) -> None:
+        """Asserts that a bot commit happened and verifies the commit messages
         and commiters.
 
         Args:
@@ -53,6 +46,7 @@ class BuildTestScenario(Scenario):
                                     working directory
             *changed_files (list[str]) : The list of changed files (paths
                                           relative to the local repository)
+
         """
         log = self.get_oneline_log(repo)
         lines = log.split("\n")
@@ -71,29 +65,24 @@ class BuildTestScenario(Scenario):
         error_msg: str = ""
 
         if len(missing_changed) != 0:
-            error_msg += (
-                "\nThe following files should have been modified:\n"
-                f"{'\n'.join(missing_changed)}"
-            )
+            error_msg += f"\nThe following files should have been modified:\n{'\n'.join(missing_changed)}"
 
         unexpectedly_modified = actual_changes.difference(expected_changes)
 
         if len(unexpectedly_modified) != 0:
-            error_msg += (
-                "\nThe following files should not have been modified:"
-                f"\n{'\n'.join(unexpectedly_modified)}"
-            )
+            error_msg += f"\nThe following files should not have been modified:\n{'\n'.join(unexpectedly_modified)}"
 
         if error_msg != "":
-            raise AssertionError(f"Invalid changed files:{error_msg}")
+            msg = f"Invalid changed files:{error_msg}"
+            raise AssertionError(msg)
 
     def assert_no_bot_commit(self, repo: TestRepository) -> None:
-        """
-        Asserts that no bot commit happened.
+        """Asserts that no bot commit happened.
 
         Args:
             repo (TestRepository) : The test repository that defines the
                                     working directory
+
         """
         log = self.get_oneline_log(repo)
         lines = log.split("\n")
@@ -105,8 +94,7 @@ class BuildTestScenario(Scenario):
 
 
 class OldBuildSuccessNoChecksum(BuildTestScenario):
-    """
-    Integration test scenario that checks that there is always a rebuild if the
+    """Integration test scenario that checks that there is always a rebuild if the
     checksum file does not exist.
     """
 
@@ -131,8 +119,7 @@ class OldBuildSuccessNoChecksum(BuildTestScenario):
 
 
 class OldBuildSuccessSameChecksum(BuildTestScenario):
-    """
-    Integration test scenario that checks that there is no build when the
+    """Integration test scenario that checks that there is no build when the
     checksum matches and all PDFs exist.
     """
 
@@ -145,8 +132,7 @@ class OldBuildSuccessSameChecksum(BuildTestScenario):
 
 
 class OldBuildSuccessSameChecksumNoPDF(BuildTestScenario):
-    """
-    Integration test scenario that checks that even a valid checksum with some
+    """Integration test scenario that checks that even a valid checksum with some
     PDFs missing does not trigger a rebuild.
     """
 
@@ -168,8 +154,7 @@ class OldBuildSuccessSameChecksumNoPDF(BuildTestScenario):
 
 
 class OldBuildSuccessWrongCheckSum(BuildTestScenario):
-    """
-    Integration test scenario that checks that an invalid checksum causes a
+    """Integration test scenario that checks that an invalid checksum causes a
     rebuild.
     """
 
@@ -194,8 +179,7 @@ class OldBuildSuccessWrongCheckSum(BuildTestScenario):
 
 
 class OldBuildFailureNewFile(BuildTestScenario):
-    """
-    Integration test scenario that checks that the checksum is not updated
+    """Integration test scenario that checks that the checksum is not updated
     if the build fails on a new file.
     """
 
@@ -224,8 +208,7 @@ class OldBuildFailureNewFile(BuildTestScenario):
 
 
 class OldBuildFailureNoChecksum(BuildTestScenario):
-    """
-    Integration test scenario that checks that there is no checksum file created
+    """Integration test scenario that checks that there is no checksum file created
     if a build (partially) fails and no checksum file existed before.
     """
 
@@ -262,8 +245,7 @@ class OldBuildFailureNoChecksum(BuildTestScenario):
 
 
 class OldBuildFailureUpdateFile(BuildTestScenario):
-    """
-    Integration test scenario that checks that the checksum file is not updated
+    """Integration test scenario that checks that the checksum file is not updated
     if a build (partially) fails due to a file update.
     """
 
@@ -295,8 +277,7 @@ class OldBuildFailureUpdateFile(BuildTestScenario):
 
 
 class NewBuildSuccessNoChecksum(BuildTestScenario):
-    """
-    Integration test scenario that checks that there is always a rebuild if the
+    """Integration test scenario that checks that there is always a rebuild if the
     checksum file does not exist.
     """
 
@@ -321,8 +302,7 @@ class NewBuildSuccessNoChecksum(BuildTestScenario):
 
 
 class NewBuildSuccessSameChecksum(BuildTestScenario):
-    """
-    Integration test scenario that checks that there is no build when the
+    """Integration test scenario that checks that there is no build when the
     checksum matches and all PDFs exist.
     """
 
@@ -335,8 +315,7 @@ class NewBuildSuccessSameChecksum(BuildTestScenario):
 
 
 class NewBuildSuccessSameChecksumNoPDF(BuildTestScenario):
-    """
-    Integration test scenario that checks that even a valid checksum with some
+    """Integration test scenario that checks that even a valid checksum with some
     PDFs missing does not trigger a rebuild.
     """
 
@@ -358,8 +337,7 @@ class NewBuildSuccessSameChecksumNoPDF(BuildTestScenario):
 
 
 class NewBuildSuccessWrongCheckSum(BuildTestScenario):
-    """
-    Integration test scenario that checks that an invalid checksum causes a
+    """Integration test scenario that checks that an invalid checksum causes a
     rebuild.
     """
 
@@ -384,8 +362,7 @@ class NewBuildSuccessWrongCheckSum(BuildTestScenario):
 
 
 class NewBuildFailureNewFile(BuildTestScenario):
-    """
-    Integration test scenario that checks that the checksum is not updated
+    """Integration test scenario that checks that the checksum is not updated
     if the build fails on a new file.
     """
 
@@ -414,8 +391,7 @@ class NewBuildFailureNewFile(BuildTestScenario):
 
 
 class NewBuildFailureNoChecksum(BuildTestScenario):
-    """
-    Integration test scenario that checks that there is no checksum file created
+    """Integration test scenario that checks that there is no checksum file created
     if a build (partially) fails and no checksum file existed before.
     """
 
@@ -452,8 +428,7 @@ class NewBuildFailureNoChecksum(BuildTestScenario):
 
 
 class NewBuildFailureUpdateFile(BuildTestScenario):
-    """
-    Integration test scenario that checks that the checksum file is not updated
+    """Integration test scenario that checks that the checksum file is not updated
     if a build (partially) fails due to a file update.
     """
 
