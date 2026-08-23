@@ -4,8 +4,11 @@
 
 import logging
 import subprocess
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
+from enum import Enum
 from pathlib import Path
+
+import pytest
 
 from ._test_utils import RealFileSystemTest, create_temp_json
 
@@ -18,8 +21,101 @@ INTEGRATION_TEST_CONFIG_BASE: dict[str, str | list[str] | dict[str, str]] = {
 }
 
 
+def build_success(workdir: Path, exercises: Iterable[str]) -> None:
+    """Runs the integration test for the given exercises in the target working
+    directory using the `INTEGRATION_TEST_CONFIG_BASE` example config as a
+    baseline and asserts that the build was successful.
+
+    Args:
+        workdir (Path): the current working directory
+        exercises (Iterable[str]) : The exercises that should be compiled.
+    """
+    result = _build(workdir, exercises)
+    result.check_returncode()
+
+
+def build_failed(workdir: Path, exercises: Iterable[str], extra_args: Iterable[str] = ()) -> None:
+    """Runs the integration test for the given exercises in the target working
+    directory using the `INTEGRATION_TEST_CONFIG_BASE` example config as a
+    baseline and asserts that the build failed.
+
+    Args:
+        workdir (Path): the current working directory
+        exercises (Iterable[str]) : The exercises that should be compiled.
+        extra_args (Iterable[str], optional) : Additional command line arguments
+                                                to pass to the build action.
+    """
+    result = _build(workdir, exercises, extra_args)
+    assert result.returncode != 0, "Expected build to fail, but it succeeded."
+
+
+class Mode(Enum):
+    DEFAULT = 1
+    DEBUG = 2
+
+
+def _build(
+    workdir: Path, exercises: Iterable[str], extra_args: Iterable[str] = (), mode: Mode = Mode.DEFAULT
+) -> subprocess.CompletedProcess[bytes]:
+    """Runs the integration test for the given exercises in the target working
+    directory using the `INTEGRATION_TEST_CONFIG_BASE` example config as a
+    baseline and logs the command output if enabled.
+
+    Args:
+        workdir (Path): the current working directory
+        exercises (Iterable[str]) : The exercises that should be compiled.
+        extra_args (Iterable[str], optional) : Additional command line arguments
+                                                to pass to the build action.
+        mode (Mode, optional) : The running mode of the test
+
+    Returns:
+        subprocess.CompletedProcess[bytes] : The result of the build process.
+    """
+
+    config = {**INTEGRATION_TEST_CONFIG_BASE}
+    config["exercises"] = list(exercises)
+    json_config = create_temp_json(**config)
+
+    logfile = workdir.joinpath(".test.log")
+
+    with logfile.open("w", encoding="UTF-8") as f:
+        result = subprocess.run(  # noqa: S603
+            [
+                "/usr/bin/env",
+                "python3",
+                "-m",
+                "latex_build_action",
+                "-d",
+                str(workdir.absolute()),
+                "-c",
+                str(json_config.absolute()),
+                "--no-git",
+                *extra_args,
+            ],
+            check=False,
+            shell=False,
+            stdout=f,
+            stderr=subprocess.STDOUT,
+        )
+
+    if mode == Mode.DEBUG:
+        with logfile.open(encoding="UTF-8") as f:
+            log.info(f.read())
+
+    logfile.unlink()
+
+    return result
+
+
+type BuildSuccessFn = Callable[[Path, Iterable[str]], None]
+
+
+success_builds: list[BuildSuccessFn] = [build_success]
+
+
 class TestBuildExerciseFiles(RealFileSystemTest):
-    def test_initial_compilation_success(self) -> None:
+    @pytest.mark.parametrize("build", success_builds)
+    def test_initial_compilation_success(self, build: BuildSuccessFn) -> None:
 
         # create exercise folders
         self.generate_tex_files(
@@ -32,7 +128,7 @@ class TestBuildExerciseFiles(RealFileSystemTest):
             valid=True,
         )
 
-        self.run_build("UE01", "UE02", "UE03").check_returncode()
+        build(self.testdir, ["UE01", "UE02", "UE03"])
 
         self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01")
         self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
@@ -59,7 +155,7 @@ class TestBuildExerciseFiles(RealFileSystemTest):
             valid=True,
         )
 
-        self.run_build("UE01", "UE02").check_returncode()
+        build_success(self.testdir, ["UE01", "UE02"])
 
         self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01")
         self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
@@ -80,7 +176,7 @@ class TestBuildExerciseFiles(RealFileSystemTest):
             valid=True,
         )
 
-        self.run_build("UE01", "UE02", "UE03").check_returncode()
+        build_success(self.testdir, ["UE01", "UE02", "UE03"])
 
         old_checksums = [
             self.checksum("25WS", "UE01"),
@@ -88,7 +184,7 @@ class TestBuildExerciseFiles(RealFileSystemTest):
             self.checksum("25WS", "UE03"),
         ]
 
-        self.run_build("UE01", "UE02", "UE03").check_returncode()
+        build_success(self.testdir, ["UE01", "UE02", "UE03"])
 
         self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01")
         self.assert_was_compiled("25WS", "UE01", "Aufgabe", "UE01_solution")
@@ -128,9 +224,8 @@ class TestBuildExerciseFiles(RealFileSystemTest):
 
         self.generate_tex_files(Path("UE03", "Unterricht", "Lernziele.tex"), valid=False)
 
-        result = self.run_build("UE01", "UE02", "UE03")
+        build_failed(self.testdir, ["UE01", "UE02", "UE03"])
 
-        assert result.returncode != 0
         self.assert_is_file("25WS", "UE01", ".checksum")
         self.assert_is_file("25WS", "UE02", ".checksum")
         self.assert_no_file("25WS", "UE03", ".checksum")
@@ -164,9 +259,7 @@ class TestBuildExerciseFiles(RealFileSystemTest):
             valid=False,
         )
 
-        result = self.run_build("UE01", "UE02", "UE03", extra_args=["--rehash-on-error"])
-
-        assert result.returncode != 0
+        build_failed(self.testdir, ["UE01", "UE02", "UE03"], extra_args=["--rehash-on-error"])
 
         self.assert_is_file("25WS", "UE01", ".checksum")
         self.assert_is_file("25WS", "UE02", ".checksum")
@@ -204,14 +297,11 @@ class TestBuildExerciseFiles(RealFileSystemTest):
             valid=False,
         )
 
-        result = self.run_build(
-            "UE01",
-            "UE02",
-            "UE03",
+        build_failed(
+            self.testdir,
+            ["UE01", "UE02", "UE03"],
             extra_args=["--abort-on-error", "--rehash-on-error", "--rollback-on-error"],
         )
-
-        assert result.returncode != 0
 
         self.assert_is_file("25WS", "UE01", ".checksum")
         self.assert_is_file("25WS", "UE02", ".checksum")
@@ -228,52 +318,3 @@ class TestBuildExerciseFiles(RealFileSystemTest):
         self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03", expect_buildlog=False)
         self.assert_not_compiled("25WS", "UE03", "Aufgabe", "UE03_solution", expect_buildlog=False)
         self.assert_not_compiled("25WS", "UE03", "Unterricht", "UE03_Lernziele", expect_buildlog=False)
-
-    def run_build(
-        self, *exercises: str, extra_args: Iterable[str] = (), print_log: bool = False
-    ) -> subprocess.CompletedProcess[bytes]:
-        """Runs the integration test for the given exercises in the target working
-        directory using the `INTEGRATION_TEST_CONFIG_BASE` example config as a
-        baseline.
-
-        Args:
-            *exercises (str) : The exercises that should be compiled.
-            print_log (bool, default: False) : Debug flag that prints the command
-                                            output to console.
-
-        """
-        workdir = self.testdir
-
-        config = {**INTEGRATION_TEST_CONFIG_BASE}
-        config["exercises"] = list(exercises)
-        json_config = create_temp_json(**config)
-
-        logfile = workdir.joinpath(".test.log")
-
-        with logfile.open("w", encoding="UTF-8") as logf:
-            result = subprocess.run(  # noqa: S603
-                [
-                    "/usr/bin/env",
-                    "python3",
-                    "-m",
-                    "latex_build_action",
-                    "-d",
-                    str(workdir.absolute()),
-                    "-c",
-                    str(json_config.absolute()),
-                    "--no-git",
-                    *extra_args,
-                ],
-                check=False,
-                shell=False,
-                stdout=logf,
-                stderr=subprocess.STDOUT,
-            )
-
-        if print_log:
-            with logfile.open(encoding="UTF-8") as f:
-                log.info(f.read())
-
-        logfile.unlink()
-
-        return result
