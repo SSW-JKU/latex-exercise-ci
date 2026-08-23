@@ -10,7 +10,7 @@ ignore = [
   "ISC001",  # implicit string concat: conflicts with the formatter
   "D203",    # 1 blank line before class docstring (conflicts with D211)
   "D213",    # multi-line docstring summary on second line (conflicts with D212)
-  "CPY001",
+  "CPY001",  # don't require copyright notice
 ]
 
 [tool.ruff.lint.per-file-ignores]
