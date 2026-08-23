@@ -75,7 +75,7 @@ jobs:
           pip install --upgrade setuptools
           pip install -r requirements.txt
       - name: Run type check
-        run: mypy -p latex_build_action -p tests -p action_tests
+        run: mypy
 
 
   unit-test:

@@ -30,6 +30,7 @@ pretty = true
 warn_unreachable = true
 check_untyped_defs = true
 enable_error_code = ["ignore-without-code"]
+packages = ["latex_build_action", "tests", "action_tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
