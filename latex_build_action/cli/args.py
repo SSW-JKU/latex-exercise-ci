@@ -41,7 +41,7 @@ def create_parser() -> ArgumentParser:
     parser.add_argument(
         "--rollback-on-error",
         help="Reverts any changes to the current exercise directory if build \
-            errors occurred. Requires --abort-on-error",
+            errors occurred. Requires --abort-on-error or --abort-all-on-error",
         action="store_true",
     )
 
