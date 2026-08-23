@@ -13,6 +13,31 @@ from ._test_utils import RealFileSystemTest
 
 class TestBuildExerciseFiles(RealFileSystemTest):
     @pytest.mark.parametrize("build", success_builds)
+    def test_no_exercises_specified(self, build: BuildSuccessFn) -> None:
+
+        # create exercise folders
+        self.generate_tex_files(
+            Path("UE01", "Aufgabe", "main.tex"),
+            Path("UE01", "Unterricht", "Lernziele.tex"),
+            Path("UE02", "Aufgabe", "main.tex"),
+            Path("UE02", "Unterricht", "Lernziele.tex"),
+            valid=True,
+        )
+
+        build(self.testdir, [])
+
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE01", "Aufgabe", "UE01_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE01", "Unterricht", "UE01_Lernziele", expect_buildlog=False)
+
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Aufgabe", "UE02_solution", expect_buildlog=False)
+        self.assert_not_compiled("25WS", "UE02", "Unterricht", "UE02_Lernziele", expect_buildlog=False)
+
+        self.assert_no_file("25WS", "UE01", ".checksum")
+        self.assert_no_file("25WS", "UE02", ".checksum")
+
+    @pytest.mark.parametrize("build", success_builds)
     def test_initial_compilation_success(self, build: BuildSuccessFn) -> None:
 
         # create exercise folders

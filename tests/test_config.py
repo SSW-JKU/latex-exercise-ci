@@ -19,6 +19,24 @@ def test_parse_config() -> None:
     assert config.lesson_entry_point == "LessonEntryPoint"
 
 
+def test_parse_config_no_exercises() -> None:
+    config = Config.from_args(
+        Namespace(
+            config=create_temp_json(
+                activeSemester="27SS",
+                exercises=[],
+                entryPoints={"exercise": "y", "lesson": "z"},
+            ),
+            workdir=Path(),
+        )
+    )
+    assert config.workdir == Path("27SS")
+    assert config.active_semester == 27
+    assert config.exercises == []
+    assert config.exercises_entry_point == "y"
+    assert config.lesson_entry_point == "z"
+
+
 def test_active_semester_invalid() -> None:
     invalid_config_json = create_temp_json(
         activeSemester="3WS",
