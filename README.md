@@ -30,7 +30,7 @@ The builds are performed in a prepared CI environment that installs (parts of) [
 As preparing this environment is costly (in terms of CI build time), the action tries to cache as much as possible from this process (e.g., the TeX Live packages) and also tries to prevent excessive rebuilds of the materials.
 Therefore, the build process generates a hash of its included files per _exercise_ and also pushes it to the repo (local `.checksum` files in the `<exercise_nr>` directories). If in a subsequent invocation of the build process (another commit) the given files of the exercises _have not_ changed, the checksum should match and the exercise is skipped during the build process. Hence, the `.checksum` files should never be manually changed, unless you want to force a rebuild (e.g., by deleting the `.checksum` file).
 
-**Note:**: A correct checksum without proper PDFs *does not* trigger a rebuild. Since checksum files are only generated once the PDFs are successfully built, this should not occur without manual intervention.
+**Note:**: A correct checksum without proper PDFs _does not_ trigger a rebuild. Since checksum files are only generated once the PDFs are successfully built, this should not occur without manual intervention.
 
 ## Configuration
 
@@ -65,7 +65,7 @@ The action is customizable via the following inputs:
      */
     "entryPoints": {
       "exercise": "<str>", // exercise entry point (also for solution build).
-      "lesson": "<str>" // lesson entry point
+      "lesson": "<str>", // lesson entry point
     },
     /*
      * list of exercises (cf. <exercise_nr>) that are considered for the build
@@ -75,7 +75,7 @@ The action is customizable via the following inputs:
       "<str>", // exercise 1 folder name
       "<str>", // exercise 2 folder name
       // ...
-    ]
+    ],
   }
   ```
 
@@ -105,18 +105,36 @@ Even if some builds succeed, the build bot will still push changes; however, the
 
 ## Development
 
+This project is managed using `uv` ([docs.astral.sh/uv](https://docs.astral.sh/uv/)).
+
+### Update Dependencies
+
+Use this command to update `uv.lock` based on the listed dependencies in `pyproject.toml`:
+
+```bash
+uv lock
+```
+
+Use this command to sync your local environment with the declarations in `uv.lock` and add/update the virtual environment:
+
+```bash
+uv sync --all-groups
+```
+
 ### Pre-Commit Checks
 
 This repository uses [pre-commit](https://pre-commit.com/) to automatically check and format files before each commit.
 
 #### Setup
 
-1. **Install `pre-commit`**:
+1. **Install `pre-commit`** (is part of dev-dependencies):
+
    ```bash
-   pip install pre-commit
+   uv add --group dev pre-commit
    ```
 
 2. **Install hooks**
+
    ```bash
    pre-commit install
    ```
