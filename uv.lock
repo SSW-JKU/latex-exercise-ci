@@ -21,6 +21,15 @@ wheels = [
 ]
 
 [[package]]
+name = "check-dependencies"
+version = "2.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/c3/74c0a9e25f85f3042e8865db52a7120557000916e9a3905d28b0eb68ee9f/check_dependencies-2.0.1.tar.gz", hash = "sha256:9cfa10bff3ac60dc0d93ff7e2060337658b339d58346e353baaffeb5efd640c8", size = 25573, upload-time = "2026-08-12T20:10:49.515Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1a/fc/1da099be7330520fc67660c498335557b0319decb3b0089c60e7aa9ea989/check_dependencies-2.0.1-py3-none-any.whl", hash = "sha256:2fccbb52fca4743dea26ec124fcef551e2ee7b0a708c4c7fb1bbb7d220cfcc72", size = 26449, upload-time = "2026-08-12T20:10:48.338Z" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -171,6 +180,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "check-dependencies" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pyfakefs" },
@@ -185,6 +195,7 @@ requires-dist = [{ name = "dirhash", specifier = "==0.5.0" }]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "check-dependencies", specifier = ">=2.0.1" },
     { name = "mypy", specifier = "==1.15.0" },
     { name = "pre-commit", specifier = ">=4.6.2" },
     { name = "pyfakefs", specifier = "==6.2.0" },

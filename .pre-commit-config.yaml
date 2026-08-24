@@ -3,7 +3,6 @@ default_install_hook_types:
   - commit-msg
 
 repos:
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.2
     hooks:
@@ -17,3 +16,13 @@ repos:
       - id: conventional-pre-commit
         stages: [commit-msg]
         args: []
+
+  # https://github.com/schollm/check-dependencies
+  - repo: local
+    hooks:
+      - id: check-dependencies
+        name: check-dependencies
+        entry: uv run check-dependencies
+        language: system
+        pass_filenames: false
+        args: [--include-dev, latex_build_action, tests, action_tests]

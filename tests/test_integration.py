@@ -6,8 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tests._integration_test_utils import BuildErrorFn, BuildSuccessFn, failed_builds, success_builds
-
+from ._integration_test_utils import BuildErrorFn, BuildSuccessFn, failed_builds, success_builds
 from ._test_utils import RealFileSystemTest
 
 

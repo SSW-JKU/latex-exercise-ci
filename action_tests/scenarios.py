@@ -1,7 +1,6 @@
 """Defines various integration test scenarios and their verification steps."""
 
-from action_tests.scenario import Scenario, ScenarioManager, assert_eq, check_commit
-
+from .scenario import Scenario, ScenarioManager, assert_eq, check_commit
 from .test_repository import DEFAULT_EMAIL, DEFAULT_USER, TestRepository, git
 
 BOT_NAME = "Integration Test Build[bot]"
