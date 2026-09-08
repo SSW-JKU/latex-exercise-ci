@@ -18,6 +18,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "check-dependencies>=2.0.1",
     "mypy==1.15.0",
     "pre-commit>=4.6.2",
     "pyfakefs==6.2.0",
@@ -79,6 +80,18 @@ branch = true
 
 [tool.coverage.report]
 exclude_also = [
-  "pragma: no cover"
+  "pragma: no cover",
 ]
 fail_under = 95
+
+[tool.check-dependencies]
+# tooling dependencies
+known-extra = [
+  "check-dependencies",
+  "mypy",
+  "pre-commit",
+  "pytest-cov",
+  "ruff",
+]
+# dependencies referred to via absolute imports 
+known-missing = ["tests._test_utils"]
