@@ -1,7 +1,12 @@
 """Defines various integration test scenarios and their verification steps."""
 
-from .scenario import Scenario, ScenarioManager, assert_eq, check_commit
-from .test_repository import DEFAULT_EMAIL, DEFAULT_USER, TestRepository, git
+from pathlib import Path
+
+from .asserts import assert_eq, assert_files_exist, assert_files_missing
+from .git.commands import get_changed_files, get_oneline_log
+from .git.repository import DEFAULT_EMAIL, DEFAULT_USER, TestRepository
+from .scenario import Scenario, check_commit
+from .scenario_manager import ScenarioManager
 
 BOT_NAME = "Integration Test Build[bot]"
 BOT_EMAIL = "integration-test-bot@users.noreply.github.com"
@@ -14,40 +19,18 @@ FAILURE_OUTCOME = "failure"
 class BuildTestScenario(Scenario):
     """Abstract base class for all build action integration test scenarios."""
 
-    def get_changed_files(self, repo: TestRepository) -> list[str]:
-        """Retrieves a list of files marked as changed in the build commit.
-
-        Args:
-            repo (TestRepository) : The test repository that defines the
-                                    working directory
-
-        Returns:
-            (list[str]) A list of all changed files (all relative to the local
-            repository)
-
-        """
-        log = git(
-            "log",
-            "--name-only",
-            "--pretty=",
-            "HEAD~1..HEAD",
-            check=True,
-            cwd=repo.local_path,
-        )
-        return log.stdout.strip().split("\n")
-
-    def assert_bot_commit(self, repo: TestRepository, *changed_files: list[str]) -> None:
+    def assert_bot_commit(self, repo: TestRepository, *changed_files: Path) -> None:
         """Asserts that a bot commit happened and verifies the commit messages
         and commiters.
 
         Args:
             repo (TestRepository) : The test repository that defines the
                                     working directory
-            *changed_files (list[str]) : The list of changed files (paths
+            *changed_files (Path) : The list of changed files (paths
                                           relative to the local repository)
 
         """
-        log = self.get_oneline_log(repo)
+        log = get_oneline_log(repo.local_path)
         lines = log.split("\n")
         assert_eq(2, len(lines), "Unexpected number of commits")
         bot_commit, initial_commit = lines
@@ -55,9 +38,9 @@ class BuildTestScenario(Scenario):
         check_commit(initial_commit, DEFAULT_USER, DEFAULT_EMAIL)
         check_commit(bot_commit, BOT_NAME, BOT_EMAIL, BOT_COMMIT_MSG)
 
-        actual_changes = set(self.get_changed_files(repo))
+        actual_changes = set(get_changed_files(repo.local_path))
 
-        expected_changes = {"/".join(path) for path in changed_files}
+        expected_changes = {str(path) for path in changed_files}
 
         missing_changed = expected_changes.difference(actual_changes)
 
@@ -83,7 +66,7 @@ class BuildTestScenario(Scenario):
                                     working directory
 
         """
-        log = self.get_oneline_log(repo)
+        log = get_oneline_log(repo.local_path)
         lines = log.split("\n")
         assert_eq(1, len(lines), "Unexpected number of commits")
         check_commit(lines[0], DEFAULT_USER, DEFAULT_EMAIL)
@@ -104,17 +87,17 @@ class OldBuildSuccessNoChecksum(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
-            ["22W", "Ex01", ".checksum"],
-            ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+            Path("22W", "Ex01", ".checksum"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01.pdf"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01.build_log"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"),
+            Path("22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"),
+            Path("22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *new_files)
-        self.assert_files_exist(repo, *new_files)
+        assert_files_exist(repo.local_path, *new_files)
 
 
 class OldBuildSuccessSameChecksum(BuildTestScenario):
@@ -142,13 +125,13 @@ class OldBuildSuccessSameChecksumNoPDF(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
         self.assert_no_bot_commit(repo)
 
-        self.assert_files_missing(
-            repo,
-            ["22W", "Ex03", "Aufgabe", "Ex03.pdf"],
-            ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
-            ["22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
-            ["22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
-            ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
+        assert_files_missing(
+            repo.local_path,
+            Path("22W", "Ex03", "Aufgabe", "Ex03.pdf"),
+            Path("22W", "Ex03", "Aufgabe", "Ex03.build_log"),
+            Path("22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"),
+            Path("22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"),
+            Path("22W", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"),
         )
 
 
@@ -164,17 +147,17 @@ class OldBuildSuccessWrongCheckSum(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["22W", "Ex04", ".checksum"],
-            ["22W", "Ex04", "Aufgabe", "Ex04.pdf"],
-            ["22W", "Ex04", "Aufgabe", "Ex04.build_log"],
-            ["22W", "Ex04", "Aufgabe", "Ex04_solution.pdf"],
-            ["22W", "Ex04", "Aufgabe", "Ex04_solution.build_log"],
-            ["22W", "Ex04", "Unterricht", "Ex04_Lernziele.pdf"],
-            ["22W", "Ex04", "Unterricht", "Ex04_Lernziele.build_log"],
+            Path("22W", "Ex04", ".checksum"),
+            Path("22W", "Ex04", "Aufgabe", "Ex04.pdf"),
+            Path("22W", "Ex04", "Aufgabe", "Ex04.build_log"),
+            Path("22W", "Ex04", "Aufgabe", "Ex04_solution.pdf"),
+            Path("22W", "Ex04", "Aufgabe", "Ex04_solution.build_log"),
+            Path("22W", "Ex04", "Unterricht", "Ex04_Lernziele.pdf"),
+            Path("22W", "Ex04", "Unterricht", "Ex04_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *modified_files)
-        self.assert_files_exist(repo, *modified_files)
+        assert_files_exist(repo.local_path, *modified_files)
 
 
 class OldBuildFailureNewFile(BuildTestScenario):
@@ -189,20 +172,20 @@ class OldBuildFailureNewFile(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["22W", "Ex03", "Aufgabe", "Ex03.build_log"],
-            ["22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
-            ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
-            ["22W", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
+            Path("22W", "Ex03", "Aufgabe", "Ex03.build_log"),
+            Path("22W", "Ex03", "Aufgabe", "Ex03_solution.build_log"),
+            Path("22W", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"),
+            Path("22W", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *modified_files)
 
-        self.assert_files_exist(repo, *modified_files)
+        assert_files_exist(repo.local_path, *modified_files)
 
-        self.assert_files_missing(
-            repo,
-            ["22W", "Ex03", "Aufgabe", "Ex03.pdf"],
-            ["22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
+        assert_files_missing(
+            repo.local_path,
+            Path("22W", "Ex03", "Aufgabe", "Ex03.pdf"),
+            Path("22W", "Ex03", "Aufgabe", "Ex03_solution.pdf"),
         )
 
 
@@ -218,28 +201,28 @@ class OldBuildFailureNoChecksum(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
-            ["22W", "Ex02", ".checksum"],
-            ["22W", "Ex02", "Aufgabe", "Ex02.pdf"],
-            ["22W", "Ex02", "Aufgabe", "Ex02.build_log"],
-            ["22W", "Ex02", "Aufgabe", "Ex02_solution.pdf"],
-            ["22W", "Ex02", "Aufgabe", "Ex02_solution.build_log"],
-            ["22W", "Ex02", "Unterricht", "Ex02_Lernziele.pdf"],
-            ["22W", "Ex02", "Unterricht", "Ex02_Lernziele.build_log"],
+            Path("22W", "Ex01", "Aufgabe", "Ex01.build_log"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"),
+            Path("22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"),
+            Path("22W", "Ex02", ".checksum"),
+            Path("22W", "Ex02", "Aufgabe", "Ex02.pdf"),
+            Path("22W", "Ex02", "Aufgabe", "Ex02.build_log"),
+            Path("22W", "Ex02", "Aufgabe", "Ex02_solution.pdf"),
+            Path("22W", "Ex02", "Aufgabe", "Ex02_solution.build_log"),
+            Path("22W", "Ex02", "Unterricht", "Ex02_Lernziele.pdf"),
+            Path("22W", "Ex02", "Unterricht", "Ex02_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *modified_files)
 
-        self.assert_files_exist(repo, *modified_files)
+        assert_files_exist(repo.local_path, *modified_files)
 
-        self.assert_files_missing(
-            repo,
-            ["22W", "Ex01", ".checksum"],
-            ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+        assert_files_missing(
+            repo.local_path,
+            Path("22W", "Ex01", ".checksum"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01.pdf"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"),
+            Path("22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"),
         )
 
 
@@ -255,21 +238,21 @@ class OldBuildFailureUpdateFile(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
-            ["22W", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["22W", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+            Path("22W", "Ex01", "Aufgabe", "Ex01.pdf"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01.build_log"),
+            Path("22W", "Ex01", "Aufgabe", "Ex01_solution.build_log"),
+            Path("22W", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"),
         ]
 
         deleted_files = [
-            ["22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+            Path("22W", "Ex01", "Aufgabe", "Ex01_solution.pdf"),
+            Path("22W", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"),
         ]
 
         self.assert_bot_commit(repo, *new_files, *deleted_files)
 
-        self.assert_files_exist(repo, *new_files)
-        self.assert_files_missing(repo, *deleted_files)
+        assert_files_exist(repo.local_path, *new_files)
+        assert_files_missing(repo.local_path, *deleted_files)
 
 
 #### NEW BUILD SYSTEM ####
@@ -287,17 +270,17 @@ class NewBuildSuccessNoChecksum(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
-            ["25ST", "Ex01", ".checksum"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
-            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+            Path("25ST", "Ex01", ".checksum"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01.pdf"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01.build_log"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"),
+            Path("25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"),
+            Path("25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *new_files)
-        self.assert_files_exist(repo, *new_files)
+        assert_files_exist(repo.local_path, *new_files)
 
 
 class NewBuildSuccessSameChecksum(BuildTestScenario):
@@ -325,13 +308,13 @@ class NewBuildSuccessSameChecksumNoPDF(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
         self.assert_no_bot_commit(repo)
 
-        self.assert_files_missing(
-            repo,
-            ["25ST", "Ex03", "Aufgabe", "Ex03.pdf"],
-            ["25ST", "Ex03", "Aufgabe", "Ex03.build_log"],
-            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
-            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
-            ["25ST", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
+        assert_files_missing(
+            repo.local_path,
+            Path("25ST", "Ex03", "Aufgabe", "Ex03.pdf"),
+            Path("25ST", "Ex03", "Aufgabe", "Ex03.build_log"),
+            Path("25ST", "Ex03", "Aufgabe", "Ex03_solution.pdf"),
+            Path("25ST", "Ex03", "Aufgabe", "Ex03_solution.build_log"),
+            Path("25ST", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"),
         )
 
 
@@ -347,17 +330,17 @@ class NewBuildSuccessWrongCheckSum(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["25ST", "Ex04", ".checksum"],
-            ["25ST", "Ex04", "Aufgabe", "Ex04.pdf"],
-            ["25ST", "Ex04", "Aufgabe", "Ex04.build_log"],
-            ["25ST", "Ex04", "Aufgabe", "Ex04_solution.pdf"],
-            ["25ST", "Ex04", "Aufgabe", "Ex04_solution.build_log"],
-            ["25ST", "Ex04", "Unterricht", "Ex04_Lernziele.pdf"],
-            ["25ST", "Ex04", "Unterricht", "Ex04_Lernziele.build_log"],
+            Path("25ST", "Ex04", ".checksum"),
+            Path("25ST", "Ex04", "Aufgabe", "Ex04.pdf"),
+            Path("25ST", "Ex04", "Aufgabe", "Ex04.build_log"),
+            Path("25ST", "Ex04", "Aufgabe", "Ex04_solution.pdf"),
+            Path("25ST", "Ex04", "Aufgabe", "Ex04_solution.build_log"),
+            Path("25ST", "Ex04", "Unterricht", "Ex04_Lernziele.pdf"),
+            Path("25ST", "Ex04", "Unterricht", "Ex04_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *modified_files)
-        self.assert_files_exist(repo, *modified_files)
+        assert_files_exist(repo.local_path, *modified_files)
 
 
 class NewBuildFailureNewFile(BuildTestScenario):
@@ -372,20 +355,20 @@ class NewBuildFailureNewFile(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["25ST", "Ex03", "Aufgabe", "Ex03.build_log"],
-            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.build_log"],
-            ["25ST", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"],
-            ["25ST", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"],
+            Path("25ST", "Ex03", "Aufgabe", "Ex03.build_log"),
+            Path("25ST", "Ex03", "Aufgabe", "Ex03_solution.build_log"),
+            Path("25ST", "Ex03", "Unterricht", "Ex03_Lernziele.pdf"),
+            Path("25ST", "Ex03", "Unterricht", "Ex03_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *modified_files)
 
-        self.assert_files_exist(repo, *modified_files)
+        assert_files_exist(repo.local_path, *modified_files)
 
-        self.assert_files_missing(
-            repo,
-            ["25ST", "Ex03", "Aufgabe", "Ex03.pdf"],
-            ["25ST", "Ex03", "Aufgabe", "Ex03_solution.pdf"],
+        assert_files_missing(
+            repo.local_path,
+            Path("25ST", "Ex03", "Aufgabe", "Ex03.pdf"),
+            Path("25ST", "Ex03", "Aufgabe", "Ex03_solution.pdf"),
         )
 
 
@@ -401,28 +384,28 @@ class NewBuildFailureNoChecksum(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         modified_files = [
-            ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
-            ["25ST", "Ex02", ".checksum"],
-            ["25ST", "Ex02", "Aufgabe", "Ex02.pdf"],
-            ["25ST", "Ex02", "Aufgabe", "Ex02.build_log"],
-            ["25ST", "Ex02", "Aufgabe", "Ex02_solution.pdf"],
-            ["25ST", "Ex02", "Aufgabe", "Ex02_solution.build_log"],
-            ["25ST", "Ex02", "Unterricht", "Ex02_Lernziele.pdf"],
-            ["25ST", "Ex02", "Unterricht", "Ex02_Lernziele.build_log"],
+            Path("25ST", "Ex01", "Aufgabe", "Ex01.build_log"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"),
+            Path("25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"),
+            Path("25ST", "Ex02", ".checksum"),
+            Path("25ST", "Ex02", "Aufgabe", "Ex02.pdf"),
+            Path("25ST", "Ex02", "Aufgabe", "Ex02.build_log"),
+            Path("25ST", "Ex02", "Aufgabe", "Ex02_solution.pdf"),
+            Path("25ST", "Ex02", "Aufgabe", "Ex02_solution.build_log"),
+            Path("25ST", "Ex02", "Unterricht", "Ex02_Lernziele.pdf"),
+            Path("25ST", "Ex02", "Unterricht", "Ex02_Lernziele.build_log"),
         ]
 
         self.assert_bot_commit(repo, *modified_files)
 
-        self.assert_files_exist(repo, *modified_files)
+        assert_files_exist(repo.local_path, *modified_files)
 
-        self.assert_files_missing(
-            repo,
-            ["25ST", "Ex01", ".checksum"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+        assert_files_missing(
+            repo.local_path,
+            Path("25ST", "Ex01", ".checksum"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01.pdf"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"),
+            Path("25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"),
         )
 
 
@@ -438,21 +421,21 @@ class NewBuildFailureUpdateFile(BuildTestScenario):
         print(f"Verifying scenario: {self.name}")
 
         new_files = [
-            ["25ST", "Ex01", "Aufgabe", "Ex01.pdf"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01.build_log"],
-            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"],
-            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"],
+            Path("25ST", "Ex01", "Aufgabe", "Ex01.pdf"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01.build_log"),
+            Path("25ST", "Ex01", "Aufgabe", "Ex01_solution.build_log"),
+            Path("25ST", "Ex01", "Unterricht", "Ex01_Lernziele.build_log"),
         ]
 
         deleted_files = [
-            ["25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"],
-            ["25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"],
+            Path("25ST", "Ex01", "Aufgabe", "Ex01_solution.pdf"),
+            Path("25ST", "Ex01", "Unterricht", "Ex01_Lernziele.pdf"),
         ]
 
         self.assert_bot_commit(repo, *new_files, *deleted_files)
 
-        self.assert_files_exist(repo, *new_files)
-        self.assert_files_missing(repo, *deleted_files)
+        assert_files_exist(repo.local_path, *new_files)
+        assert_files_missing(repo.local_path, *deleted_files)
 
 
 SCENARIOS = ScenarioManager(
