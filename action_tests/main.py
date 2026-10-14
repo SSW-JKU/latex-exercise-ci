@@ -6,36 +6,24 @@ executed.
 """
 
 import logging
-from pathlib import Path
+from collections.abc import Sequence
 
 from .cli.args import create_parser
 from .git import check_git_installation
-from .scenario_manager import ScenarioManager
+from .scenario import ScenarioManager
 
 log = logging.getLogger(__name__)
 
-REMOTE_PATH = Path("/tmp/test-remotes")  # noqa: S108
-LOCAL_PATH = Path("/tmp/test-locals")  # noqa: S108
 
-
-def _prepare(scenario_manager: ScenarioManager) -> None:
-    log.info("Setting up repositories and files")
-
-    for scenario in scenario_manager.scenarios():
-        scenario.prepare(REMOTE_PATH, LOCAL_PATH)
-
-
-def run_integration_test(scenario_manager: ScenarioManager) -> None:
+def main(args: Sequence[str] | None = None) -> None:
     """Run the integration test script."""
     check_git_installation()
     log.info("Git is available.")
-    args = create_parser().parse_args()
-    if args.check:
-        s = scenario_manager.get_scenario(args.check)
-        if s is None:
-            msg = f"Scenario '{args.check}' not found."
-            raise ValueError(msg)
-
-        s.test(REMOTE_PATH, LOCAL_PATH, args.outcome)
+    options = create_parser().parse_args(args)
+    scenario_manager = ScenarioManager.collect_scenarios(
+        directory=options.scenario_dir, remote_path=options.remote_path, local_path=options.local_path
+    )
+    if options.task == "verify":
+        scenario_manager.verify(options.scenario, options.outcome)
     else:
-        _prepare(scenario_manager)
+        scenario_manager.prepare(options.scenario)

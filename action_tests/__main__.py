@@ -5,8 +5,7 @@ This script prepares the test repositories and sets up the test files for the in
 performs verification after the action was executed.
 """
 
-from .main import run_integration_test
-from .scenarios import SCENARIOS
+from .main import main
 
 if __name__ == "__main__":
-    run_integration_test(SCENARIOS)
+    main()
