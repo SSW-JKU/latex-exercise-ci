@@ -106,10 +106,10 @@ jobs:
       - name: Install Python dependencies
         run: uv sync --all-groups
 
-      - name: Prepare repositories and test files
-        run: python -m action_tests
+      - name: Prepare scenario
+        run: python -m action_tests --scenario-dir "action_tests/defs" prepare ${{ matrix.scenario }}
 
-      - name: Run test
+      - name: Run scenario
         id: test-execution
         uses: ./
         # scenarios named *_failure_* are expected to fail the action
@@ -152,9 +152,9 @@ jobs:
             listingsutf8
             xstring
 
-      - name: Verify test result
+      - name: Verify scenario
         if: always()
-        run: python -m action_tests --check ${{ matrix.scenario }} ${{ steps.test-execution.outcome }}
+        run: python -m action_tests --scenario-dir "action_tests/defs" verify ${{ steps.test-execution.outcome }} ${{ matrix.scenario }}
 
   deploy:
     name: "Create release"

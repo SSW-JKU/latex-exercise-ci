@@ -2,11 +2,10 @@
 
 from pathlib import Path
 
-from .asserts import assert_eq, assert_files_exist, assert_files_missing
-from .git.commands import get_changed_files, get_oneline_log
-from .git.repository import DEFAULT_EMAIL, DEFAULT_USER, TestRepository
-from .scenario import Scenario, check_commit
-from .scenario_manager import ScenarioManager
+from action_tests.asserts import assert_eq, assert_files_exist, assert_files_missing
+from action_tests.git.commands import get_changed_files, get_oneline_log
+from action_tests.git.repository import DEFAULT_EMAIL, DEFAULT_USER, TestRepository
+from action_tests.scenario import Scenario, check_commit
 
 BOT_NAME = "Integration Test Build[bot]"
 BOT_EMAIL = "integration-test-bot@users.noreply.github.com"
@@ -436,21 +435,3 @@ class NewBuildFailureUpdateFile(BuildTestScenario):
 
         assert_files_exist(repo.local_path, *new_files)
         assert_files_missing(repo.local_path, *deleted_files)
-
-
-SCENARIOS = ScenarioManager(
-    OldBuildSuccessNoChecksum(),
-    OldBuildSuccessSameChecksum(),
-    OldBuildSuccessSameChecksumNoPDF(),
-    OldBuildSuccessWrongCheckSum(),
-    OldBuildFailureNewFile(),
-    OldBuildFailureNoChecksum(),
-    OldBuildFailureUpdateFile(),
-    NewBuildSuccessNoChecksum(),
-    NewBuildSuccessSameChecksum(),
-    NewBuildSuccessSameChecksumNoPDF(),
-    NewBuildSuccessWrongCheckSum(),
-    NewBuildFailureNewFile(),
-    NewBuildFailureNoChecksum(),
-    NewBuildFailureUpdateFile(),
-)

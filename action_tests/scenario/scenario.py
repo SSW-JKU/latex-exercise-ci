@@ -1,14 +1,25 @@
 """Module that provides templates for defining integration test scenarios."""
 
+import inspect
 import logging
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from .asserts import assert_eq
-from .git import TestRepository
+from action_tests.asserts import assert_eq
+from action_tests.git import TestRepository
 
 log = logging.getLogger(__name__)
+
+
+def is_scenario(clazz: type) -> bool:
+    """Check if a class is a subclass of `Scenario` and not abstract.
+
+    Args:
+        clazz (Any) : the target inspection object to check
+
+    """
+    return inspect.isclass(clazz) and issubclass(clazz, Scenario) and not inspect.isabstract(clazz)
 
 
 def check_commit(
