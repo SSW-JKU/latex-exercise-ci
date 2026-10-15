@@ -12,20 +12,18 @@ version = "0.1.0"
 description = "Builds contents and homeworks of the SSW lectures and exercises"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "dirhash==0.5.0",
-]
+dependencies = ["dirhash==0.5.0"]
 
 [dependency-groups]
 dev = [
-    "check-dependencies>=2.0.1",
-    "mypy==1.15.0",
-    "pre-commit>=4.6.2",
-    "pyfakefs==6.2.0",
-    "pytest==9.0.3",
-    "pytest-cov==7.1.0",
-    "pytest-mock==3.15.1",
-    "ruff==0.16.2",
+  "check-dependencies>=2.0.1",
+  "mypy==1.15.0",
+  "pre-commit>=4.6.2",
+  "pyfakefs==6.2.0",
+  "pytest==9.0.3",
+  "pytest-cov==7.1.0",
+  "pytest-mock==3.15.1",
+  "ruff==0.16.2",
 ]
 
 [tool.ruff]
@@ -36,24 +34,24 @@ src = ["latex_build_action", "tests", "action_tests"]
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-  "COM812",  # trailing-comma rule: conflicts with the formatter
-  "ISC001",  # implicit string concat: conflicts with the formatter
-  "D203",    # 1 blank line before class docstring (conflicts with D211)
-  "D213",    # multi-line docstring summary on second line (conflicts with D212)
-  "CPY001",  # don't require copyright notice
+  "COM812", # trailing-comma rule: conflicts with the formatter
+  "ISC001", # implicit string concat: conflicts with the formatter
+  "D203",   # 1 blank line before class docstring (conflicts with D211)
+  "D213",   # multi-line docstring summary on second line (conflicts with D212)
+  "CPY001", # don't require copyright notice
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-  "D",        # docstring rules: tests don't need docstrings
-  "PLR2004",  # magic-value-comparison: tests often use magic values
-  "S101"      # assert: allow assertions in tests (rewritten by pytest)
+  "D",       # docstring rules: tests don't need docstrings
+  "PLR2004", # magic-value-comparison: tests often use magic values
+  "S101",    # assert: allow assertions in tests (rewritten by pytest)
 ]
 "action_tests/*" = [
   "D",
   "PLR2004",
   "S101",
-  "T201"      # allow print statements in action tests
+  "T201",    # allow print statements in action tests
 ]
 
 [tool.ruff.lint.isort]
@@ -79,19 +77,24 @@ addopts = ["-v", "--cov=latex_build_action"]
 branch = true
 
 [tool.coverage.report]
-exclude_also = [
-  "pragma: no cover",
-]
+exclude_also = ["pragma: no cover"]
 fail_under = 95
 
 [tool.check-dependencies]
 # tooling dependencies
-known-extra = [
-  "check-dependencies",
-  "mypy",
-  "pre-commit",
-  "pytest-cov",
-  "ruff",
+known-extra = ["check-dependencies", "mypy", "pre-commit", "pytest-cov", "ruff"]
+# dependencies referred to via absolute imports
+known-missing = [
+  "tests._test_utils",
+  "action_tests.asserts.assert_eq",
+  "action_tests.git.TestRepository",
+  "action_tests.asserts.assert_files_exist",
+  "action_tests.asserts.assert_files_missing",
+  "action_tests.git.commands.get_changed_files",
+  "action_tests.git.commands.get_oneline_log",
+  "action_tests.git.repository.DEFAULT_EMAIL",
+  "action_tests.git.repository.DEFAULT_USER",
+  "action_tests.git.repository.TestRepository",
+  "action_tests.scenario.Scenario",
+  "action_tests.scenario.check_commit",
 ]
-# dependencies referred to via absolute imports 
-known-missing = ["tests._test_utils"]
