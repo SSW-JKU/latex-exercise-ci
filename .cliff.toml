@@ -1,0 +1,23 @@
+# git-cliff configuration: https://git-cliff.org/docs/configuration
+
+[changelog]
+# customized to only show first line of commit message
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [unreleased]
+{% endif %}\
+{% for entry in commits | commit_groups(groups=commit_parsers_groups) %}
+    ### {{ entry.group | striptags | trim | upper_first }}
+    {% for commit in entry.commits %}
+        - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
+            {% if commit.breaking %}[**breaking**] {% endif %}\
+            {{ commit.message | split(pat="\n") | first | trim | upper_first }}\
+    {% endfor %}
+{% endfor %}
+"""
+
+[git]
+# for backward compatibility
+filter_unconventional = false
