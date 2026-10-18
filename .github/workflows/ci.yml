@@ -50,7 +50,7 @@ jobs:
         python-version: ["3.13"]
         texlive-version: ["2026"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
@@ -96,7 +96,7 @@ jobs:
           - new_build_failure_no_checksum
           - new_build_failure_update_file
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
