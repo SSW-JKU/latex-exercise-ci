@@ -8,7 +8,7 @@ include = ["latex_build_action*"]
 
 [project]
 name = "latex-build-action"
-version = "0.1.0"
+version = "1.3.3"
 description = "Builds contents and homeworks of the SSW lectures and exercises"
 readme = "README.md"
 requires-python = ">=3.13"
