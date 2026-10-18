@@ -1,83 +1,98 @@
-# Changelog
+## [1.3.3] - 2026-10-18
 
-All notable changes to this project will be documented in this file.
+### 🚀 Features
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+- Add pre-commit (#23)
+- Add check-dependencies support + pre-commit/ci integration (#27)
+- Add auto-changelog generation (#30)
 
+### 🚜 Refactor
+
+- Restructure action tests (#28)
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version to 1.3.3
+
+### 💼 Other
+
+- Bump setuptools from 78.1.1 to 83.0.0 (#24)
+- Bump pytest from 8.3.5 to 9.0.3 (#22)
+- Add Ruff, devcontainers and pyproject.toml setup (#25)
+- Migrate to uv (#26)
 ## [1.3.2] - 2026-03-04
 
-### Fixed
+### ⚙️ Miscellaneous Tasks
 
-- Replace cronjob with separate canary that forces cache invalidation
+- Replace cronjob with separate canary action to force cache invalidation (#21)
 
+### 💼 Other
+
+- Release v1.3.2
 ## [1.3.1] - 2026-03-04
 
-### Added
+### ⚙️ Miscellaneous Tasks
 
-- [#18](https://github.com/SSW-JKU/latex-exercise-ci/issues/18) Added CRON job that runs integration tests on a weekly basis
+- Add monthly conjob that runs ci (#20)
 
-### Updated
+### 💼 Other
 
-- Update TeX Live dependency to 2026
-
+- Modularize integration test setup (#16)
+- *(texlive)* Upgrade defaults and tests to texlive 2026 (#19)
+- Release v1.3.1
 ## [1.3.0] - 2025-09-10
 
-### Fixed
+### 💼 Other
 
-- Python documentation on various functions
-- Minor typing inconsistencies
-
-### Added
-
-- New action inputs to configure the working directory
-- Action integration tests
-
+- Add action integration tests (#12)
+- V1.3.0
 ## [1.2.1] - 2025-07-19
 
-### Fixed
+### 💼 Other
 
-- [#10](https://github.com/SSW-JKU/latex-exercise-ci/issues/10): Replace teatimeguest/setup-texlive-action texlive action
-
+- Update README.md
+- Change README.md to use JSONC Markdown dialect
+- Bump setuptools from 76.0.0 to 78.1.1
+- Merge pull request #9 from SSW-JKU/dependabot/pip/setuptools-78.1.1
+- Replace no longer available texlive setup action (#11)
 ## [1.2.0] - 2025-05-19
 
-### Fixed
+### 💼 Other
 
-- [#7](https://github.com/SSW-JKU/latex-exercise-ci/issues/7): Fix setting output parameter
-
-### Added
-
-- Added integration test for builds where exercise directory does not exist
-
+- Fix build result when exercise directory does not exist and add integration test
+- Merge pull request #8 from SSW-JKU/issue/7/fix_action_output
+- Update changelog
 ## [1.1.1] - 2025-05-19
 
-### Fixed
+### 💼 Other
 
-- CHANGELOG section typo
-- Parsing of CHANGELOG in release action
-
-## [1.1.0] - 2025-05-19
-
-### Added
-
-- [#2](https://github.com/SSW-JKU/latex-exercise-ci/issues/2): Add changed files as action outputs
-- Fix JSON format of README config description
-
+- Add status badge
+- Add CHANGELOG
+- Add matrix strategy + automatic release drafts
+- Separate lint and test steps and add release job
+- Merge pull request #3 from SSW-JKU/ci/release_action
+- Add changed files as action output
+- Merge pull request #4 from SSW-JKU/issue/2/add_action_outputs
+- Release v1.1.0
+- Fix CHANGELOG parsing
+- Merge pull request #6 from SSW-JKU/issue/5/fix_ci_changelog_parsing
+- Prepare v1.1.1
 ## [1.0.0] - 2025-04-05
 
-### Added
+### 💼 Other
 
-- Basic action implementation
-- This CHANGELOG file to hopefully serve as an evolving example of a
-  standardized open source project CHANGELOG.
-- README with input documentation
-
-[unreleased]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.3.2...HEAD
-[1.3.2]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.3.1...v1.3.2
-[1.3.1]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.3.0...v1.3.1
-[1.3.0]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.2.1...v1.3.0
-[1.2.1]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.2.0...v1.2.1
-[1.2.0]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.1.1...v1.2.0
-[1.1.1]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/SSW-JKU/latex-exercise-ci/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/SSW-JKU/latex-exercise-ci/releases/tag/v1.0.0
+- Initial commit
+- Add Python scripts and initial config
+- Fix working directory
+- Add latexmk dependency
+- Move main method to __main__ file, update dirhash, fix integration test build command
+- Restructure action
+- Try different paths/workdirs
+- Fix paths
+- Fix paths v2
+- Fix requirements file name
+- Try fix for setup-python path
+- Update workdir for actual script execution
+- Update action paths
+- Fix typo
+- Finalize documentation for v1
