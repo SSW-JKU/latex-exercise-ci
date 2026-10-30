@@ -74,7 +74,11 @@ packages = ["latex_build_action", "tests", "action_tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = ["-v", "--cov=latex_build_action"]
+addopts = [
+  "--cov=latex_build_action",
+  "--cov-report=term-missing",
+  "--cov-fail-under=95",
+]
 
 [tool.coverage.run]
 branch = true
