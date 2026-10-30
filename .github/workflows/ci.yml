@@ -107,7 +107,7 @@ jobs:
         run: uv sync --all-groups
 
       - name: Prepare scenario
-        run: python -m action_tests --scenario-dir "action_tests/defs" prepare ${{ matrix.scenario }}
+        run: uv run gh-action-integration-test --scenario-dir "action_tests/defs" prepare ${{ matrix.scenario }}
 
       - name: Run scenario
         id: test-execution
@@ -154,7 +154,7 @@ jobs:
 
       - name: Verify scenario
         if: always()
-        run: python -m action_tests --scenario-dir "action_tests/defs" verify ${{ steps.test-execution.outcome }} ${{ matrix.scenario }}
+        run: uv run gh-action-integration-test --scenario-dir "action_tests/defs" verify ${{ steps.test-execution.outcome }} ${{ matrix.scenario }}
 
   # --- Release pipeline: only runs for v* tags pointing at a commit on main ---
 
