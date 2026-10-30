@@ -12,7 +12,10 @@ version = "1.3.3"
 description = "Builds contents and homeworks of the SSW lectures and exercises"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["dirhash==0.5.0"]
+dependencies = [
+    "dirhash==0.5.0",
+    "gh-action-integration-test",
+]
 
 [dependency-groups]
 dev = [
@@ -98,3 +101,6 @@ known-missing = [
   "action_tests.scenario.Scenario",
   "action_tests.scenario.check_commit",
 ]
+
+[tool.uv.sources]
+gh-action-integration-test = { git = "https://github.com/skloibi/gh-action-integration-test.git" }

@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from action_tests.asserts import assert_eq, assert_files_exist, assert_files_missing
-from action_tests.git.commands import get_changed_files, get_oneline_log
-from action_tests.git.repository import DEFAULT_EMAIL, DEFAULT_USER, TestRepository
-from action_tests.scenario import Scenario, check_commit
+from gh_action_integration_test.asserts import assert_eq, assert_files_exist, assert_files_missing
+from gh_action_integration_test.git.commands import get_changed_files, get_oneline_log
+from gh_action_integration_test.git.repository import DEFAULT_EMAIL, DEFAULT_USER, TestRepository
+from gh_action_integration_test.scenario import FileTreeScenario, check_commit
 
 BOT_NAME = "Integration Test Build[bot]"
 BOT_EMAIL = "integration-test-bot@users.noreply.github.com"
@@ -15,7 +15,7 @@ SUCCESS_OUTCOME = "success"
 FAILURE_OUTCOME = "failure"
 
 
-class BuildTestScenario(Scenario):
+class BuildTestScenario(FileTreeScenario):
     """Abstract base class for all build action integration test scenarios."""
 
     def assert_bot_commit(self, repo: TestRepository, *changed_files: Path) -> None:
