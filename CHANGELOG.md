@@ -1,3 +1,18 @@
+## [1.4.0] - 2026-10-30
+
+### 🧪 Testing
+
+- Move integration test framework to external repo
+
+### ⚙️ Miscellaneous Tasks
+
+- *(changelog)* Update for v1.3.3 [skip ci]
+- *(test)* Use short form for pytest output
+- Bump v.1.4.0
+
+### 💼 Other
+
+- *(deps)* Bump virtualenv from 21.7.4 to 21.7.13 (#31)
 ## [1.3.3] - 2026-10-18
 
 ### 🚀 Features
