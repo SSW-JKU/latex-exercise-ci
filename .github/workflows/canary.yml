@@ -13,7 +13,7 @@ jobs:
         python-version: ["3.13"]
         texlive-version: ["2026"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
@@ -34,4 +34,4 @@ jobs:
             scheme-basic
             latexmk
       - name: Run unittests
-        run: make test
+        run: uv run pytest
